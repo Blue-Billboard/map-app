@@ -1,2 +1,218 @@
-@import url('./custom.css');
-@import url('./tailwind.css');
+/* Tailwind v4: declare sources for class scanning */
+@source "../../index.html";
+@source "../**/*.vue";
+@source "../**/*.ts";
+@source "../**/*.js";
+
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+@import "primeicons/primeicons.css";
+
+/* Custom styles */
+#map{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.marker-pin {
+    width: 40px;
+    height: 40px;
+    border-radius: 50% 50% 50% 0;
+    position: absolute;
+    transform: rotate(-45deg);
+    left: 50%;
+    top: 50%;
+    margin: -15px 0 0 -15px;
+}
+
+.marker-pin::after {
+    content: '';
+    width: 34px;
+    height: 34px;
+    margin: 3px 0 0 3px;
+    background: #fff;
+    position: absolute;
+    border-radius: 50%;
+}
+
+.custom-div-icon img {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    left: 0;
+    right: 0;
+    margin: 29px 12.5px;
+    text-align: center;
+}
+
+.custom-div-icon span {
+    position: absolute;
+    width: 25px;
+    font-size: 25px;
+    left: 0;
+    right: 0;
+    margin: 17px 18px;
+    top: 4px;
+    text-align: center;
+}
+
+.target{
+    font-size: 1.5em;
+    margin-top: 2px;
+}
+
+.map-info {
+    background-color: white !important;
+    font-size: large;
+    font-weight: bold;
+    padding: 5px;
+}
+
+.legend {
+    line-height: 18px;
+    color: #555;
+    background-color: white !important;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    color: white;
+}
+
+
+:root {
+    --map-tiles-filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+
+    /* Blue Billboard Brand Colors */
+    --blue-billboard-primary: #0d47a1;
+    --blue-billboard-primary-hover: #1565c0;
+    --blue-billboard-primary-dark: #60a5fa;
+    --blue-billboard-primary-dark-hover: #3b82f6;
+}
+
+@media (prefers-color-scheme: dark) {
+    .map-tiles {
+        filter: var(--map-tiles-filter, none);
+    }
+}
+
+.info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+
+.info h4 {
+    margin: 0 0 5px;
+    color: #777;
+}
+
+/* Override PrimeVue green colors with Blue Billboard blue */
+.p-button:not(.p-button-outlined):not(.p-button-text) {
+    background-color: var(--blue-billboard-primary) !important;
+    border-color: var(--blue-billboard-primary) !important;
+}
+
+.p-button:not(.p-button-outlined):not(.p-button-text):hover {
+    background-color: var(--blue-billboard-primary-hover) !important;
+    border-color: var(--blue-billboard-primary-hover) !important;
+}
+
+.p-button.p-button-success {
+    background-color: var(--blue-billboard-primary) !important;
+    border-color: var(--blue-billboard-primary) !important;
+}
+
+.p-button.p-button-success:hover {
+    background-color: var(--blue-billboard-primary-hover) !important;
+    border-color: var(--blue-billboard-primary-hover) !important;
+}
+
+/* Steps component - change from green to blue */
+.p-steps .p-steps-item.p-highlight .p-steps-number,
+.p-steps-item-active .p-steps-item-number,
+.p-steps-number.p-highlight {
+    background-color: var(--blue-billboard-primary) !important;
+    border-color: var(--blue-billboard-primary) !important;
+    color: white !important;
+}
+
+.p-steps .p-steps-item.p-highlight .p-steps-title,
+.p-steps-item-active .p-steps-item-label,
+.p-steps-item.p-highlight .p-steps-item-label {
+    color: var(--blue-billboard-primary) !important;
+}
+
+/* Outlined buttons */
+.p-button.p-button-outlined {
+    border-color: var(--blue-billboard-primary) !important;
+    color: var(--blue-billboard-primary) !important;
+}
+
+.p-button.p-button-outlined:hover {
+    background-color: var(--blue-billboard-primary) !important;
+    color: white !important;
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+    .p-button:not(.p-button-outlined):not(.p-button-text) {
+        background-color: var(--blue-billboard-primary-dark) !important;
+        border-color: var(--blue-billboard-primary-dark) !important;
+    }
+
+    .p-button:not(.p-button-outlined):not(.p-button-text):hover {
+        background-color: var(--blue-billboard-primary-dark-hover) !important;
+        border-color: var(--blue-billboard-primary-dark-hover) !important;
+    }
+
+    .p-button.p-button-success {
+        background-color: var(--blue-billboard-primary-dark) !important;
+        border-color: var(--blue-billboard-primary-dark) !important;
+    }
+
+    .p-button.p-button-success:hover {
+        background-color: var(--blue-billboard-primary-dark-hover) !important;
+        border-color: var(--blue-billboard-primary-dark-hover) !important;
+    }
+
+    .p-steps .p-steps-item.p-highlight .p-steps-number {
+        background-color: var(--blue-billboard-primary-dark) !important;
+        border-color: var(--blue-billboard-primary-dark) !important;
+    }
+
+    .p-steps .p-steps-item.p-highlight .p-steps-number,
+    .p-steps-item-active .p-steps-item-number,
+    .p-steps-number.p-highlight {
+        background-color: var(--blue-billboard-primary-dark) !important;
+        border-color: var(--blue-billboard-primary-dark) !important;
+    }
+
+    .p-steps .p-steps-item.p-highlight .p-steps-title,
+    .p-steps-item-active .p-steps-item-label,
+    .p-steps-item.p-highlight .p-steps-item-label {
+        color: var(--blue-billboard-primary-dark) !important;
+    }
+
+    /* Outlined buttons dark mode */
+    .p-button.p-button-outlined {
+        border-color: var(--blue-billboard-primary-dark) !important;
+        color: var(--blue-billboard-primary-dark) !important;
+    }
+
+    .p-button.p-button-outlined:hover {
+        background-color: var(--blue-billboard-primary-dark) !important;
+        color: white !important;
+    }
+}

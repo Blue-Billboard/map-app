@@ -2,10 +2,8 @@
 import {ref, onMounted} from "vue";
 import L from 'leaflet';
 import 'leaflet-draw';
-import 'leaflet-draw/dist/leaflet.draw.css';
 import WizardView from "./dialogs/wizard/WizardView.vue";
 import {useVenueList} from "@/composables/useVenueList";
-import VenueList from "@/dialogs/listv2/VenueList.vue";
 
 const open = ref(false);
 const wizardOpen = ref(false);
@@ -14,14 +12,12 @@ const markerGroup = ref();
 const locationData = ref<any[]>([]);
 const displayGroups = ref<any[]>([]);
 const meta = ref();
-const {sidebarVisible, levelColour} = useVenueList();
+const {levelColour} = useVenueList();
 const isStripped = ref(false);
-
-const levels = ["Blue", "Gold", "Platinum"];
 
 let lat = 50.9885170505752;
 let lng = -0.1969095226736214;
-let zoomLevel = 10;
+let zoomLevel = 9;
 
 onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -59,29 +55,8 @@ onMounted(async () => {
     }
   });
 
-  let legend = new L.Control({position: 'topleft'});
-
-  legend.onAdd = function () {
-
-    let div = L.DomUtil.create('div', 'info legend'),
-        labels = [];
-
-    // loop through our density intervals and generate a label with a colored square for each interval
-    for (let i = 0; i < levels.length; i++) {
-      div.innerHTML +=
-          '<i style="background:' + levelColour(levels[i]) + '"></i> ' +
-          levels[i] + ' Collection<br>';
-    }
-
-    return div;
-  };
-
-  legend.addTo(map.value);
-
   locationData.value = await fetch("https://admin.bluebillboard.co.uk/api/public/venues").then(res => res.json());
   displayGroups.value = await fetch("https://admin.bluebillboard.co.uk/api/public/groups").then(res => res.json());
-  //displayGroups.value = await fetch("http://localhost:5055/api/public/groups").then(res => res.json());
-  //locationData.value = await fetch("http://localhost:5055/api/public/venues").then(res => res.json());
   processLocationData();
 
   setTimeout(function () {
@@ -110,136 +85,253 @@ const showModal = (e: any) => {
 }
 
 
-const goToLocationOnMap = (location: any) => {
-  map.value.setView([location.coordinates[1], location.coordinates[0]], 20);
-  sidebarVisible.value = false;
-}
 
 </script>
 
 <template>
   <div class="flex h-screen">
-    <Dialog v-if="meta" v-model:visible="open" modal
-            :style="{ width: '55rem', 'background-color': levelColour(meta.level), 'max-height': '90vh', 'overflow-y': 'auto' }"
-            :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <Dialog v-if="meta" v-model:visible="open" modal class="venue-dialog"
+            :style="{ width: '60rem', 'max-height': '90vh' }"
+            :breakpoints="{ '1199px': '80vw', '575px': '95vw' }">
       <template #header>
-        <p :class="`${meta.level === 'Blue' ? 'text-white' : 'text-black dark:text-white'}`"
-           class="text-3xl dark:text-white">{{ meta.name }}</p>
+        <div class="venue-dialog-header">
+          <h2 class="venue-title">{{ meta.name }}</h2>
+        </div>
       </template>
-      <span class="font-semibold block mb-5 dark:text-white"
-            :class="`${meta.level === 'Blue' ? 'text-white' : 'text-black dark:text-white'}`">Part of our {{ meta.level }} collection</span>
-      <div class="flex align-items-center gap-3" v-if="!isStripped">
-        <p class="w-6rem dark:text-white"
-           :class="`${meta.level === 'Blue' ? 'text-white' : 'text-black dark:text-white'}`">{{ meta.description }}</p>
+
+      <!-- Hero Image -->
+      <div class="venue-hero-image">
+        <img :src="meta.image" :alt="meta.name" />
       </div>
 
-      <div v-if="isStripped">
-        <p :class="`${meta.level === 'Blue' ? 'text-white' : 'text-black dark:text-white'}`"
-           class="dark:text-white">City: {{ meta.city }}</p>
-        <p :class="`${meta.level === 'Blue' ? 'text-white' : 'text-black dark:text-white'}`"
-           class="mt-2 dark:text-white">Type: {{ meta.type }}</p>
-        <p :class="`${meta.level === 'Blue' ? 'text-white' : 'text-black dark:text-white'}`"
-           class="mt-2 dark:text-white">Footfall (Monthly): {{ meta.footfallPerMonth.toLocaleString() }}</p>
-        <p :class="`${meta.level === 'Blue' ? 'text-white' : 'text-black dark:text-white'}`"
-           class="mt-2 dark:text-white">Screens: {{ meta.screenCount }}</p>
-      </div>
+      <!-- Venue Details -->
+      <div class="venue-details">
+        <p class="venue-description">{{ meta.description }}</p>
 
-      <div v-if="!isStripped" class="flex gap-3 mb-3 w-full">
-        <Accordion class="w-full">
-          <AccordionTab :pt="{
-        headerIcon: { style: `color:${meta.level === 'Blue' ? 'white' : ''}` }
-      }">
-            <template #header>
-              <p :class="`${meta.level === 'Blue' ? 'text-white' : 'text-black dark:text-white'}`">More info</p>
-            </template>
-            <template #default>
-              <p :class="`${meta.level === 'Blue' ? 'text-white' : 'text-black dark:text-white'}`"
-                 class="dark:text-white">City: {{ meta.city }}</p>
-              <p :class="`${meta.level === 'Blue' ? 'text-white' : 'text-black dark:text-white'}`"
-                 class="mt-2 dark:text-white">Type: {{ meta.type }}</p>
-              <p :class="`${meta.level === 'Blue' ? 'text-white' : 'text-black dark:text-white'}`"
-                 class="mt-2 dark:text-white">Footfall (Monthly): {{ meta.footfallPerMonth.toLocaleString() }}</p>
-              <p :class="`${meta.level === 'Blue' ? 'text-white' : 'text-black dark:text-white'}`"
-                 class="mt-2 dark:text-white">Screens: {{ meta.screenCount }}</p>
+        <div class="venue-stats">
+          <div class="stat-item">
+            <i class="pi pi-map-marker"></i>
+            <div>
+              <span class="stat-label">Location</span>
+              <span class="stat-value">{{ meta.city }}</span>
+            </div>
+          </div>
 
-            </template>
+          <div class="stat-item">
+            <i class="pi pi-building"></i>
+            <div>
+              <span class="stat-label">Type</span>
+              <span class="stat-value">{{ meta.type }}</span>
+            </div>
+          </div>
 
-          </AccordionTab>
-        </Accordion>
-      </div>
-      <div v-if="!isStripped" class="flex gap-3 mb-5">
-        <img class="max-h-3/4 w-full object-cover"
-             :src="`${meta.image}`" alt=""/>
+          <div class="stat-item">
+            <i class="pi pi-users"></i>
+            <div>
+              <span class="stat-label">Monthly Footfall</span>
+              <span class="stat-value">{{ meta.footfallPerMonth.toLocaleString() }}</span>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <i class="pi pi-desktop"></i>
+            <div>
+              <span class="stat-label">Screens</span>
+              <span class="stat-value">{{ meta.screenCount }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </Dialog>
 
     <wizard-view :open-wizard="wizardOpen" :venues="locationData" :display-groups="displayGroups"
                  @close-wizard="wizardOpen = false"/>
-    <venue-list :location-data="locationData" @set-location="goToLocationOnMap"/>
     <div id="map">
 
     </div>
     <button v-if="!isStripped" @click="wizardOpen = true" id="quoteButton"
-            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Get Quote
-    </button>
-    <button v-if="!isStripped" @click="sidebarVisible = true" id="listButton"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">View List
+            class="quote-button">
+      Get Quote
     </button>
     <toast/>
   </div>
 </template>
 
-<style>
-#listButton {
+<style scoped>
+/* Quote Button */
+.quote-button {
   position: absolute;
   top: 20px;
   right: 20px;
-  padding: 10px;
   z-index: 19;
+  background-color: #0d47a1;
+  color: white;
+  font-weight: 700;
+  padding: 1.5rem 2.5rem;
+  border-radius: 0.5rem;
+  font-size: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
 }
 
-#quoteButton {
-  position: absolute;
-  top: 20px;
-  right: 130px;
-  padding: 10px;
-  z-index: 19;
+.quote-button:hover {
+  background-color: #1565c0;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
 }
 
-:root {
-  --map-tiles-filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+/* Venue Dialog Styling */
+.venue-dialog-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
+.venue-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.venue-level-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
+  color: white;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.venue-hero-image {
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.venue-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.venue-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.venue-description {
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: #4b5563;
+  margin: 0;
+}
+
+.venue-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.stat-item i {
+  font-size: 1.5rem;
+  color: #0d47a1;
+  margin-top: 0.25rem;
+}
+
+.stat-item > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Dark Mode */
 @media (prefers-color-scheme: dark) {
-  .map-tiles {
-    filter: var(--map-tiles-filter, none);
+  .venue-title {
+    color: #f9fafb;
+  }
+
+  .venue-description {
+    color: #d1d5db;
+  }
+
+  .stat-item {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .stat-item:hover {
+    background: #374151;
+    border-color: #4b5563;
+  }
+
+  .stat-item i {
+    color: #60a5fa;
+  }
+
+  .stat-label {
+    color: #9ca3af;
+  }
+
+  .stat-value {
+    color: #f9fafb;
   }
 }
 
-.legend {
-  line-height: 18px;
-  color: #555;
-}
+/* Responsive */
+@media (max-width: 768px) {
+  .venue-hero-image {
+    height: 250px;
+  }
 
-.legend i {
-  width: 100%;
-  height: 18px;
-  float: left;
-  margin-right: 8px;
-  opacity: 0.7;
-}
+  .venue-stats {
+    grid-template-columns: 1fr;
+  }
 
-.info {
-  padding: 6px 8px;
-  font: 14px/16px Arial, Helvetica, sans-serif;
-  background: white;
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-  border-radius: 5px;
-}
-
-.info h4 {
-  margin: 0 0 5px;
-  color: #777;
+  .venue-title {
+    font-size: 1.5rem;
+  }
 }
 </style>
+
