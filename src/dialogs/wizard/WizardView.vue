@@ -815,17 +815,18 @@ const scrollToCTA = () => {
 
 .venue-card-image {
   position: relative;
-  height: 160px;
+  width: 100%;
   overflow: hidden;
   background: #f3f4f6;
   contain: layout paint;
-  contain-intrinsic-size: 160px 280px;
+  aspect-ratio: 4 / 3;
 }
 
 .venue-card-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
 }
 
 .venue-card-badge {

@@ -209,17 +209,22 @@ const showModal = (e: any) => {
 
 .venue-hero-image {
   width: 100%;
-  height: 400px;
+  max-height: 400px;
   overflow: hidden;
   border-radius: 12px;
   margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .venue-hero-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+  max-width: 100%;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .venue-details {
@@ -322,7 +327,11 @@ const showModal = (e: any) => {
 /* Responsive */
 @media (max-width: 768px) {
   .venue-hero-image {
-    height: 250px;
+    max-height: 250px;
+  }
+
+  .venue-hero-image img {
+    max-height: 250px;
   }
 
   .venue-stats {
