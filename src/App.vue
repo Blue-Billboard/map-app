@@ -195,33 +195,33 @@ const filteredSortedVenues = computed(() => {
 
     <!-- View All Venues Dialog -->
     <Dialog v-model:visible="viewAllOpen" modal class="venues-list-dialog"
-            :style="{ width: '80rem', 'max-height': '90vh' }"
-            :breakpoints="{ '1199px': '85vw', '575px': '95vw' }"
+            :style="{ width: '50rem', 'max-height': '80vh' }"
+            :breakpoints="{ '1199px': '70vw', '575px': '85vw' }"
             :draggable="false"
             :closable="true">
       <template #header>
         <div class="w-full">
-          <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">All Venues</h2>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">All Venues</h2>
         </div>
       </template>
 
       <div class="view-all-content">
         <!-- Filters -->
-        <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6">
-          <div class="flex gap-4">
+        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg mb-4">
+          <div class="flex gap-3">
             <div class="relative flex-1">
-              <i class="pi pi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <i class="pi pi-search absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
               <InputText
                 v-model="viewAllSearchFilter"
                 placeholder="Search by name, type, or location..."
-                class="w-full pl-10"
+                class="w-full pl-9 text-sm"
               />
             </div>
             <Select
               showClear
               v-model="viewAllGroupFilter"
               :options="displayGroups"
-              class="w-80"
+              class="w-64"
               optionLabel="name"
               optionValue="id"
               placeholder="Filter by group"
@@ -230,8 +230,8 @@ const filteredSortedVenues = computed(() => {
         </div>
 
         <!-- Results Info -->
-        <div class="flex justify-between items-center mb-4">
-          <p class="text-sm text-gray-600 dark:text-gray-400">
+        <div class="flex justify-between items-center mb-3">
+          <p class="text-xs text-gray-600 dark:text-gray-400">
             Showing {{ filteredSortedVenues.length }} of {{ sortedVenues.length }} venues
           </p>
         </div>
@@ -284,10 +284,10 @@ const filteredSortedVenues = computed(() => {
   z-index: 19;
   background-color: #0d47a1;
   color: white;
-  font-weight: 700;
-  padding: 1.5rem 2.5rem;
+  font-weight: 600;
+  padding: 0.875rem 1.5rem;
   border-radius: 0.5rem;
-  font-size: 1.5rem;
+  font-size: 1rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   border: none;
@@ -505,17 +505,17 @@ const filteredSortedVenues = computed(() => {
 
 .view-all-content {
   padding: 0;
-  min-height: 400px;
+  min-height: 350px;
 }
 
 /* Venue Grid - Matches Wizard styling */
 .venue-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  padding: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.875rem;
+  padding: 0.25rem;
   content-visibility: auto;
-  max-height: 60vh;
+  max-height: 50vh;
   overflow-y: auto;
 }
 
@@ -551,21 +551,21 @@ const filteredSortedVenues = computed(() => {
 }
 
 .venue-card-content {
-  padding: 1rem;
+  padding: 0.75rem;
 }
 
 .venue-card-title {
-  font-size: 1.125rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #111827;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.375rem;
 }
 
 .venue-card-details {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
-  font-size: 0.875rem;
+  gap: 0.25rem;
+  font-size: 0.75rem;
   color: #6b7280;
 }
 
