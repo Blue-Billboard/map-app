@@ -108,7 +108,7 @@ const venueMap = computed(() => {
   return map;
 });
 
-// Event delegation with direct DOM manipulation for instant feedback
+// Event delegation for venue selection
 const handleGridClick = (event: MouseEvent) => {
   const card = (event.target as HTMLElement).closest('.venue-card');
   if (!card) return;
@@ -119,13 +119,7 @@ const handleGridClick = (event: MouseEvent) => {
   const venue = venueMap.value.get(venueId);
   if (!venue) return;
 
-  // Immediately toggle the visual state (no Vue reactivity delay)
-  card.classList.toggle('selected');
-
-  // Update the data in the background
-  requestIdleCallback(() => {
-    selectVenue(venue);
-  }, { timeout: 50 });
+  selectVenue(venue);
 }
 
 const plans = ref<Plan[]>([
@@ -170,7 +164,7 @@ const calculateQuote = () => {
   let totalImpressionsPerFortnight = 0;
   selectedVenues.value?.selected.forEach((venue: any) => {
     if (venue.isRatePerScreen) {
-      totalRate.value += venue.rate * venue.screenCount - 50;
+      totalRate.value += venue.rate * venue.screenCount;
     } else {
       totalRate.value += venue.rate;
     }
@@ -315,22 +309,6 @@ watch([() => filters.value.global.value, () => filters.value.id.value], () => {
   currentPage.value = 1;
 });
 
-// Sync visual state when page changes
-watch(paginatedVenues, () => {
-  // Use nextTick to ensure DOM is updated
-  requestAnimationFrame(() => {
-    const cards = document.querySelectorAll('.venue-card');
-    cards.forEach((card) => {
-      const venueId = (card as HTMLElement).dataset.venueId;
-      if (venueId && selectedVenueIds.value.has(venueId)) {
-        card.classList.add('selected');
-      } else {
-        card.classList.remove('selected');
-      }
-    });
-  });
-}, { flush: 'post' });
-
 // Helper function for level colors
 const getLevelColor = (level: string) => {
   const colors: Record<string, string> = {
@@ -424,8 +402,13 @@ const scrollToCTA = () => {
               v-for="venue in paginatedVenues"
               :key="venue.id"
               :data-venue-id="venue.id"
-              class="venue-card"
+              :class="['venue-card', { 'selected': isVenueInSelected(venue.id) }]"
             >
+              <!-- Selection Badge -->
+              <div class="venue-card-checkbox">
+                <i v-if="isVenueInSelected(venue.id)" class="pi pi-check"></i>
+              </div>
+
               <div class="venue-card-image">
                 <img
                   :src="venue.image"
@@ -443,9 +426,6 @@ const scrollToCTA = () => {
                   <span><i class="pi pi-map-marker"></i> {{ venue.city }}</span>
                   <span><i class="pi pi-tag"></i> {{ venue.type }}</span>
                 </div>
-              </div>
-              <div class="venue-card-overlay">
-                <i :class="isVenueInSelected(venue.id) ? 'pi pi-check-circle' : 'pi pi-plus-circle'"></i>
               </div>
             </div>
           </div>
@@ -796,21 +776,62 @@ const scrollToCTA = () => {
   position: relative;
   background: white;
   border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
   contain: layout style paint;
   content-visibility: auto;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .venue-card:hover {
   border-color: #0d47a1;
+  box-shadow: 0 8px 16px rgba(13, 71, 161, 0.12);
+  transform: translateY(-2px);
 }
 
 .venue-card.selected {
-  /* Use outline to avoid layout changes */
-  outline: 3px solid #0d47a1;
-  outline-offset: -3px;
+  border-color: #0d47a1;
+  background: #f0f7ff;
+  box-shadow: 0 8px 20px rgba(13, 71, 161, 0.2);
+  transform: translateY(-2px);
+}
+
+.venue-card-checkbox {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 10;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+.venue-card-checkbox i {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: white;
+}
+
+.venue-card.selected .venue-card-checkbox {
+  background: #0d47a1;
+  border-color: #0d47a1;
+  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.4);
+  transform: scale(1.1);
+}
+
+.venue-card:hover .venue-card-checkbox {
+  border-color: #0d47a1;
+  box-shadow: 0 2px 8px rgba(13, 71, 161, 0.25);
 }
 
 .venue-card-image {
@@ -829,19 +850,6 @@ const scrollToCTA = () => {
   object-position: center;
 }
 
-.venue-card-badge {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: 6px;
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
 .venue-card-content {
   padding: 1rem;
 }
@@ -851,6 +859,10 @@ const scrollToCTA = () => {
   font-weight: 600;
   color: #111827;
   margin-bottom: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .venue-card-details {
@@ -865,29 +877,6 @@ const scrollToCTA = () => {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-}
-
-.venue-card-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(13, 71, 161, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.venue-card.selected .venue-card-overlay {
-  opacity: 1;
-}
-
-.venue-card-overlay i {
-  font-size: 2.5rem;
-  color: white;
 }
 
 /* Info Form */
@@ -1246,15 +1235,32 @@ const scrollToCTA = () => {
   .venue-card {
     background: #1f2937;
     border-color: #374151;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 
   .venue-card:hover {
     border-color: #60a5fa;
-    box-shadow: 0 12px 24px rgba(96, 165, 250, 0.15);
+    box-shadow: 0 8px 16px rgba(96, 165, 250, 0.2);
   }
 
   .venue-card.selected {
     background: #1e3a5f;
+    border-color: #60a5fa;
+    box-shadow: 0 8px 20px rgba(96, 165, 250, 0.3);
+  }
+
+  .venue-card-checkbox {
+    background: #374151;
+    border-color: #4b5563;
+  }
+
+  .venue-card.selected .venue-card-checkbox {
+    background: #60a5fa;
+    border-color: #60a5fa;
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.4);
+  }
+
+  .venue-card:hover .venue-card-checkbox {
     border-color: #60a5fa;
   }
 
