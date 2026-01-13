@@ -16,6 +16,7 @@ const displayGroups = ref<any[]>([]);
 const meta = ref();
 const {levelColour} = useVenueList();
 const isStripped = ref(false);
+const showQuoteButton = ref(false);
 
 let lat = 50.9885170505752;
 let lng = -0.1969095226736214;
@@ -25,6 +26,9 @@ onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('stripped') === 'true') {
     isStripped.value = true;
+  }
+  if (urlParams.get('showQuote') === 'true') {
+    showQuoteButton.value = true;
   }
 
   if (urlParams.get('lat') && urlParams.get('lng')) {
@@ -267,7 +271,7 @@ const filteredSortedVenues = computed(() => {
     <div id="map">
 
     </div>
-    <button @click="isStripped ? viewAllOpen = true : wizardOpen = true" id="quoteButton"
+    <button v-if="isStripped || showQuoteButton" @click="isStripped ? viewAllOpen = true : wizardOpen = true" id="quoteButton"
             class="quote-button">
       {{ isStripped ? 'View All' : 'Get Quote' }}
     </button>
