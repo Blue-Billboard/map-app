@@ -1,0 +1,1914 @@
+[{
+  "_id": {
+    "$oid": "5fcd0df13473cce4d3fba458"
+  },
+  "name": "Repair Smart Sussex",
+  "address": {
+    "address1": "Repair Smart",
+    "address2": "Roundstone Farm",
+    "address3": "Littlehampton Road",
+    "postcode": "BN12 6PW",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Repair Smart Sussex\nRepair Smart is a local SMART car damage repair center near Ferring in West Sussex.\n\nOur display is located in the waiting area in a prime location in front of the display area.\n\nThis display benefits from a high customer dwell time, espeically at key times of the day for customer drop offs and collections.",
+  "locationType": "Business Office",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.468251,
+      50.81925930000001
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "hasInventory": true,
+  "countInventory": 1,
+  "hasAdmInventory": true,
+  "averageFootfall": 0,
+  "countAdmInventory": 1,
+  "openOohChild": 701,
+  "openOohParent": 7,
+  "image": "RepairSmart.jpeg"
+},{
+  "_id": {
+    "$oid": "5fd0f7c23473cce4d3fba653"
+  },
+  "name": "Uniques Haircare & The Little Barber Shop",
+  "address": {
+    "address1": "Unique Haircare &  The Little Barber Shop",
+    "address2": "70-72 The Street",
+    "address3": "Rustington",
+    "postcode": "BN163NR",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Unique Haircare & The Little Barber Shop\n\nThis is a conteporary hairdressing salon in Rustington, West Sussex.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.5100062,
+      50.8107756
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 181713,
+  "openOohParent": 4,
+  "openOohChild": 402,
+  "image": "LBS.jpeg"
+},{
+  "_id": {
+    "$oid": "606318d4037977eeac86b51d"
+  },
+  "name": "The Vegan Street Food Company",
+  "address": {
+    "address1": "2 Field Row",
+    "address2": null,
+    "address3": "Worthing",
+    "postcode": "BN11 1TD",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## The Vegan Street Food Company\n\nWelcome to The Vegan Street Food Company where everything we sell is 100% vegan also 100% Gluten Free which we know is very rare to find!\n\nOur display is located in a prime position with visibility from both customers inside and outside the business.",
+  "locationType": "Cafe",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.3722678,
+      50.8105214
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 0,
+  "hasAdmInventory": false,
+  "averageFootfall": 0,
+  "countAdmInventory": 0,
+  "openOohChild": 805,
+  "openOohParent": 8,
+  "image": "Vegan.jpeg"
+},{
+  "_id": {
+    "$oid": "607185d56b68352998a31486"
+  },
+  "name": "Sweets Emporium",
+  "address": {
+    "address1": "Lee Allsorts Ltd",
+    "address2": "52 Blatchington Road",
+    "address3": "Hove",
+    "postcode": "BN3 3YH",
+    "county": "East Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Lee Allsorts\nWe are a local sweet company that specialise in offering the very best products at \nthe best possible prices. Our customer service team go above and beyond to make \nsure you, our customers, are happy from the moment of purchase right through to \nthe final eaten sweet from your delivery!",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.1749655,
+      50.8312947
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 1,
+  "hasAdmInventory": true,
+  "averageFootfall": 999725,
+  "countAdmInventory": 1,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "Sweets.jpeg"
+},{
+  "_id": {
+    "$oid": "6071905c6b68352998a3148a"
+  },
+  "name": "Just Another Barber Shop",
+  "address": {
+    "address1": "Just Another Barber Shop",
+    "address2": "29 Sussex Road",
+    "address3": "Haywards Heath",
+    "postcode": "RH16 4DZ",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Just Another Barber Shop\n\nThis busy barbers is located in Haywards Heath. With a modern vibe this busy \nbarber shop caters to various mens styles, from the classic to very modern cuts.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.1001888,
+      50.994294
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 1,
+  "hasAdmInventory": true,
+  "averageFootfall": 19751,
+  "countAdmInventory": 1,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "JAB.jpeg"
+},{
+  "_id": {
+    "$oid": "60955aac1826ef5f47c31f19"
+  },
+  "name": "The Barbers",
+  "address": {
+    "address1": "14-16 London Road",
+    "address2": null,
+    "address3": "Crawley",
+    "postcode": "RH10 8JQ",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## The Barbers\n\nThe Barbers are open all day 7 days a week, specialising in modern\nand traditional cutting.\n\nLocated in a prime location in Crawley, with a very high customer footfall.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.1875487,
+      51.1223249
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 1,
+  "hasAdmInventory": true,
+  "averageFootfall": 0,
+  "countAdmInventory": 1,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "TheBarbers.jpeg"
+},{
+  "_id": {
+    "$oid": "609cea47fa44c9bd728808f3"
+  },
+  "name": "Boss Gyms Eastbourne",
+  "address": {
+    "address1": "Unit 2, 54 Brampton Rd",
+    "address2": "Harvington Business Park",
+    "address3": "Eastbourne",
+    "postcode": "BN22 9BN",
+    "county": "East Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## East Sussex’s Premier Bodybuilding and Combat Sports Gym\n\n10,000 sq ft unit - Over 60 specialist bodybuilding machines  -Dumbbells up to 70kg - Boss Fight Club providing combat instruction for all levels - Studio classes from HIIT to Booty Bands - Tanning bed - In-house barbers, masseuse and beauty therapist ",
+  "locationType": "Indoor Recreation",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      0.2819536,
+      50.79273329999999
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 533488,
+  "openOohParent": 8,
+  "openOohChild": 801,
+  "image": "Boss.jpeg"
+},{
+  "_id": {
+    "$oid": "60a632ad295825eb8255ee6c"
+  },
+  "name": "Lanes Health Club",
+  "address": {
+    "address1": "Golfers Lane",
+    "address2": "Angmering",
+    "address3": null,
+    "postcode": "BN16 4NB",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "# We’ve got a lot of smiles on the clock…\nWe are a group of leisure industry veterans. Fed up with the traditional hard body fitness image we decided to make a difference to the health and wellbeing of everyone. How? By creating a club that specialises in meaningful exercise based on movement and function. Or to put it another way, we’re a club that prioritises your wellbeing – and works with you to create an individual exercise programme, whatever your age, shape or goals.",
+  "locationType": "Indoor Recreation",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.5024237,
+      50.8216153
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 3,
+  "hasAdmInventory": true,
+  "averageFootfall": 1619630,
+  "countAdmInventory": 3,
+  "openOohChild": 801,
+  "openOohParent": 8,
+  "image": "Lanes.jpeg"
+},{
+  "_id": {
+    "$oid": "60aa1e05295825eb8255f0c4"
+  },
+  "name": "KwikVape",
+  "address": {
+    "address1": "163b Tarring Road",
+    "address2": "Worthing",
+    "address3": "",
+    "postcode": "BN11 4EH",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## VAPE SHOP IN WORTHING, UK - CHEAP & BEST SMOKING ALTERNATIVES ONLINE\n\nWhy Choose Our Vape Shop In Worthing?\nWe have a wide range of products and cheap smoking alternatives, suitable for beginners and advanced vapers, both on our online store and our vape shop in Worthing. Our team have extensive experience and knowledge relating to the best vape products and are on hand to help answer any vape related questions including queries about starter or advanced kits.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.3873493,
+      50.81821859999999
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 1,
+  "hasAdmInventory": true,
+  "averageFootfall": 178707,
+  "countAdmInventory": 1,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "KwikVape.jpeg"
+},{
+  "_id": {
+    "$oid": "60e70e5bf251924ea409dd33"
+  },
+  "name": "Worlds End Barber & Shop",
+  "address": {
+    "address1": "9 Leylands Road",
+    "address2": "Burgess Hill",
+    "address3": null,
+    "postcode": "RH15 0QF",
+    "county": "East Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "Worlds End Barber Shop located outside Wivelsfield Train station, a stylish Vintage Traditional Barber & Shaving Parlour.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.1193557,
+      50.9647561
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 0,
+  "hasAdmInventory": false,
+  "averageFootfall": 0,
+  "countAdmInventory": 0,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "WEB.jpeg"
+},{
+  "_id": {
+    "$oid": "60f9b2c96812325fdc7f5e95"
+  },
+  "name": "Worthing Town FC",
+  "address": {
+    "address1": "Palatine Park Football Centre",
+    "address2": "Palatine Road",
+    "address3": "Worthing",
+    "postcode": "BN12 6JN",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "Worthing Town Football Club are the exclusive tenants of Palatine Park in Worthing having moved into the newly redeveloped clubhouse in April 2012. The club now boasts over 40 teams and over 600 playing members. ",
+  "locationType": "Outdoor Recreation",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.4210644,
+      50.823465
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 2,
+  "hasAdmInventory": true,
+  "averageFootfall": 0,
+  "countAdmInventory": 2,
+  "openOohChild": 801,
+  "openOohParent": 8,
+  "image": "WTFC.jpeg"
+},{
+  "_id": {
+    "$oid": "610186d16812325fdc7f7dcd"
+  },
+  "name": "Eastbourne Borough Football Club ",
+  "address": {
+    "address1": "Eastbourne Borough FC",
+    "address2": "Priory Lane",
+    "address3": "Eastbourne",
+    "postcode": "BN23 7QH",
+    "county": "East Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "We are Eastbourne's leading football club currently playing in the Vanarama National League South, which is the sixth tier of English football - two divisions off of the Football League. It is our ambition to become the first football club in the history of the town to play in the Football League.",
+  "locationType": "Outdoor Recreation",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      0.3202534,
+      50.8036296
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 3,
+  "hasAdmInventory": true,
+  "averageFootfall": 1442214,
+  "countAdmInventory": 3,
+  "openOohChild": 801,
+  "openOohParent": 8,
+  "image": "EBFC.jpeg"
+},{
+  "_id": {
+    "$oid": "61043e5610301097f87512b2"
+  },
+  "name": "Coffee Republic",
+  "address": {
+    "address1": "69 Terminus Road",
+    "address2": "Eastbourne",
+    "address3": null,
+    "postcode": "BN21 3NJ",
+    "county": "East Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "A Locally owned Coffee & Food Bar, offering excellent personal service, Great Coffee, hot Chocolate and Milkshakes and Food made in house!",
+  "locationType": "Cafe",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      0.2843624,
+      50.768612
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 1,
+  "hasAdmInventory": true,
+  "averageFootfall": 293174,
+  "countAdmInventory": 1,
+  "openOohChild": 805,
+  "openOohParent": 8,
+  "image": "CR.jpeg"
+},{
+  "_id": {
+    "$oid": "6151fa571318020526a3fc83"
+  },
+  "name": "Hove Fitness & Squash",
+  "address": {
+    "address1": "Hove Fitness and Squash",
+    "address2": "ORCHARD ROAD",
+    "address3": "HOVE",
+    "postcode": "BN3 7BG",
+    "county": "East Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "### Hove Fitness & Squash\n\nHove Fitness & Squash opened its doors on 3rd October 2020 after three employees of the previous club on the site took on the not insubstantial challenge to provide the local community with a high quality gym, fitness and squash club which had closed in July of the same year as a direct impact of the Covid-19 pandemic.",
+  "locationType": "Indoor Recreation",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.1772863,
+      50.8414571
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 2,
+  "hasAdmInventory": true,
+  "averageFootfall": 1406626,
+  "countAdmInventory": 2,
+  "openOohChild": 801,
+  "openOohParent": 8,
+  "image": "HoveFitness.jpeg"
+},{
+  "_id": {
+    "$oid": "61743d45c1068a154517fbb0"
+  },
+  "name": "Guild Care Methold House",
+  "address": {
+    "address1": "Methold House",
+    "address2": "North Street",
+    "address3": "Worthing",
+    "postcode": "BN11 1DU",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Guild Care Head Office\n\nGuild Care's Head Office is based at Methold House, North Street, Worthing.\n\nA range of our day services take place here in the Guild Care Centre, and central services are based here including the Recruitment, Communications & Marketing, and Fundraising teams as well as the CEO's office.",
+  "locationType": "Business Office",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.3708207,
+      50.8158288
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 3,
+  "hasAdmInventory": true,
+  "averageFootfall": 0,
+  "countAdmInventory": 3,
+  "openOohChild": 701,
+  "openOohParent": 7,
+  "image": "Methold.jpeg"
+},{
+  "_id": {
+    "$oid": "6179b363c1068a154517fbb3"
+  },
+  "name": "Fitzalan Howard Centre",
+  "address": {
+    "address1": "Fitzalan Howard Centre",
+    "address2": "Pavilion Road",
+    "address3": "Worthing",
+    "postcode": "BN14 7EF",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Fitzalan Howard Centre\n\nThe Fitzalan Howard Centre provides day and respite services for adults with disabilities and more complex needs on Mondays to Fridays, 9am to 4pm.\n\n### What Fitzalan offers\n\nActivities ranging from quiet sensory sessions to rowdy karaoke, football in the park, bargain hunting at the local market, art, cookery, and swimming\nA high staff-to-client ratio, ensuring a good level of individual support\nAdditional support available for those people with greater needs\nA long established service with a good reputation",
+  "locationType": "Health Center",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.3829681,
+      50.8193128
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 1,
+  "hasAdmInventory": true,
+  "averageFootfall": 0,
+  "countAdmInventory": 1,
+  "openOohChild": 501,
+  "openOohParent": 5,
+  "image": "Fitz.jpeg"
+},{
+  "_id": {
+    "$oid": "6186609ca66ec96b5a333a7c"
+  },
+  "name": "Guild Care Woods Way",
+  "address": {
+    "address1": "Guild Care Woods Way Charity Superstore & Donation Centre",
+    "address2": "27 Woods Way",
+    "address3": "Goring-by-Sea",
+    "postcode": "BN12 4QY",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Woods Way Charity Superstore & Donation Centre\n\nWoods Way is Guild Care's exciting, new charity superstore and donation centre in Goring-by-Sea.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.4225225,
+      50.8170133
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 1,
+  "hasAdmInventory": true,
+  "averageFootfall": 392014,
+  "countAdmInventory": 1,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "Woods.jpeg"
+},{
+  "_id": {
+    "$oid": "6186ce8aa66ec96b5a333a7e"
+  },
+  "name": "Guild Care Littlehampton",
+  "address": {
+    "address1": "2-4 Duke Street",
+    "address2": "Littlehampton",
+    "address3": null,
+    "postcode": "BN17 6EU",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Littlehampton Charity Superstore & Donation Centre\n\nThis store is much more than your usual charity shop. It is packed with bargains including furniture, children's clothes and toys, quirky household items, vintage and designer clothes and much more. It's easy to drop off your donations too at the same time.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.541554,
+      50.810845
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 268143,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "Littlehampton.jpeg"
+},{
+  "_id": {
+    "$oid": "6187c321a66ec96b5a333a80"
+  },
+  "name": "Guild Care Greenhouse Charity Superstore",
+  "address": {
+    "address1": "Unit 2, Meadow Road Depot",
+    "address2": "Meadow Road",
+    "address3": "East Worthing",
+    "postcode": "BN11 2SA",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## The Greenhouse Charity Superstore Worthing\n\nThe Greenhouse is much more than a charity furniture shop and warehouse. Packed with bargains from furniture, toys and books, to electrical goods, household, sports equipment, clothes, games etc. It's easy to drop off your donations too.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.3437902,
+      50.8187828
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 1,
+  "hasAdmInventory": true,
+  "averageFootfall": 0,
+  "countAdmInventory": 1,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "Green.jpeg"
+},{
+  "_id": {
+    "$oid": "618901daa66ec96b5a333a86"
+  },
+  "name": "King & Queen Brighton",
+  "address": {
+    "address1": "13-17 Marlborough Place",
+    "address2": "Brighton",
+    "address3": null,
+    "postcode": "BN1 1UB",
+    "county": "East Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## King & Queen Brighton\nLocated in the heart of Brighton city centre, the largest traditional English pub in Brighton. With two huge screens, we boast the ultimate football viewing experience with a fine range of homemade food and beers, coupled by an unbeatable atmosphere! ",
+  "locationType": "Bar",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.1371941,
+      50.8243193
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "countInventory": 2,
+  "hasAdmInventory": true,
+  "averageFootfall": 3715646,
+  "countAdmInventory": 2,
+  "openOohChild": 804,
+  "openOohParent": 8,
+  "image": "KQ.jpeg"
+},{
+  "_id": {
+    "$oid": "61b386c1a15ab9de827ab2b6"
+  },
+  "name": "Guild Care Findon",
+  "address": {
+    "address1": "Kings Parade",
+    "address2": "188 Findon Road",
+    "address3": "Findon Valley",
+    "postcode": "BN14 0EL",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Findon Charity Shop\nOne of our newest Guild Care shops. It is situated in the popular Findon Road parade. Findon Road has a wide variety of items from crafts, designer clothes and accessories to bric-a-brac, toys and books.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.3973487,
+      50.8484311
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 0,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "Findon.jpeg"
+},{
+  "_id": {
+    "$oid": "61b4c642a15ab9de827ab2ba"
+  },
+  "name": "Guild Care Broadwater",
+  "address": {
+    "address1": "35 Broadwater Street West",
+    "address2": "Worthing",
+    "address3": null,
+    "postcode": "BN14 9BY",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Broadwater Charity Shop\nOur Broadwater shop sells a wide variety of items including second-hand and new furniture, clothes, bric-a-brac and toys.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.3752007,
+      50.8286563
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 165125,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "Broadwater.jpeg"
+},{
+  "_id": {
+    "$oid": "61b4cacba15ab9de827ab2c1"
+  },
+  "name": "Guild Care Rowlands Road",
+  "address": {
+    "address1": "39/41 Rowlands Road",
+    "address2": "Worthing",
+    "address3": null,
+    "postcode": "BN11 3JJ",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Rowlands Road Charity Shop\n\nOne of our longest established shops on the outskirts of the town centre which opened over 20 years ago.\n\nRowlands Road has a wide variety of white goods (which are PAT tested) for sale, plus a range of home furniture and a large selection of £1 bargains. It also has a quiet designated reading area to enable you to take your time to browse through the extensive collection of books available.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.3804815,
+      50.8097696
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 0,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "GCRowlands.jpeg"
+},{
+  "_id": {
+    "$oid": "61b4cbc6a15ab9de827ab2c4"
+  },
+  "name": "Guild Care South Farm Road",
+  "address": {
+    "address1": "143 South Farm Road",
+    "address2": "Worthing",
+    "address3": null,
+    "postcode": "BN14 7AX",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## South Farm Road Charity Shop\n\nLocated along South Farm Road parade, this shop sells a range of bric-a-brac, clothes and household goods. ",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.379868,
+      50.82501329999999
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 0,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "GCSF.jpeg"
+},{
+  "_id": {
+    "$oid": "61b4ce0aa15ab9de827ab2c7"
+  },
+  "name": "Guild Care Strand Left",
+  "address": {
+    "address1": "26 Strand Parade",
+    "address2": "The Strand",
+    "address3": "Worthing",
+    "postcode": "BN12 6DJ",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "Strand Charity Shops\n\nWe now have two charity shops situated on the Strand Parade. There’s a lot to offer in both shops especially if you are book buff. The bookshop bazaar is very popular with locals and passing commuters. There’s also lots of clothing, accessories, bric-a-brac, children's toys and furniture.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.4117894,
+      50.8196184
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 0,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "GCSL.jpeg"
+},{
+  "_id": {
+    "$oid": "61b4d6e5a15ab9de827ab2ca"
+  },
+  "name": "Guild Care Strand Right",
+  "address": {
+    "address1": "20 Strand Parade",
+    "address2": "The Strand",
+    "address3": "Worthing",
+    "postcode": "BN12 6DJ",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Strand Charity Shops\n\nWe now have two charity shops situated on the Strand Parade. There’s a lot to offer in both shops especially if you are book buff. The bookshop bazaar is very popular with locals and passing commuters. There’s also lots of clothing, accessories, bric-a-brac, children's toys and furniture.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.4115819000000001,
+      50.8196447
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 0,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "GCSR.jpeg"
+},{
+  "_id": {
+    "$oid": "61b4d7ada15ab9de827ab2cd"
+  },
+  "name": "Guild Care Warwick Street",
+  "address": {
+    "address1": "21 Warwick Street",
+    "address2": "Worthing",
+    "address3": null,
+    "postcode": "BN11 3DF",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Warwick Street Charity Shop\n\nSituated on the popular shopping thoroughfare of Warwick Street, this is one of Guild Care’s newest charity shop, opened in 2016.\n\nWarwick Street charity shop is now the go to destination for more retro and vintage goods, but you’ll also find the usual bric-a-brac, clothes, books and so on.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.368856,
+      50.811996
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 519303,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "GCW.jpeg"
+},{
+  "_id": {
+    "$oid": "61e682bca15ab9de827abba2"
+  },
+  "name": "Lewes Football Club",
+  "address": {
+    "address1": "The Dripping Pan",
+    "address2": "Mountfield Road",
+    "address3": "Lewes",
+    "postcode": "BN7 2XA",
+    "county": "East Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## The Dripping Pan\n\nFew football clubs in the UK, let alone Europe, can boast of playing at the same venue for over 135 years as Lewes Football Club can. Better still, our ground was recently voted No.1 in the “British Football’s Greatest Grounds” book. Eat your heart out Anfield.",
+  "locationType": "Stadium",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      0.0122701,
+      50.8691146
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 0,
+  "openOohChild": 803,
+  "openOohParent": 8,
+  "image": "LFC.jpeg"
+},{
+  "_id": {
+    "$oid": "61fd6c63a15ab9de827aeb1e"
+  },
+  "name": "Littlehampton Golf",
+  "address": {
+    "address1": "Littlehampton Golf Club",
+    "address2": "170 Rope Walk",
+    "address3": "Littlehampton",
+    "postcode": "BN17 5DL",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Littlehampton Golf\nLittlehampton Golf Club was founded in 1889, and is the only Links golf course in West Sussex and was recently described in GOLF NEWS as ‘Sussex’s Hidden Gem of a Links’. The 18 hole par 70 course is never the same from one day to the next as the changing wind conditions make each hole set up differently from round to round. ",
+  "locationType": "Outdoor Recreation",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.5460646,
+      50.8060195
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 874860,
+  "openOohChild": 801,
+  "openOohParent": 8,
+  "image": "LGOLF.jpeg"
+},{
+  "_id": {
+    "$oid": "62431ed4d47b78de552c90af"
+  },
+  "name": "St Barnabas House Storrington",
+  "address": {
+    "address1": "Old Mill Square",
+    "address2": "Storrington",
+    "address3": null,
+    "postcode": "RH20 4NQ",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "This busy and well-supported charity shop is one of the main focal points for the village. The local residents very generously donate all of the items for sale in the shop, and there are good quality clothes, shoes, handbags and bric-a-brac to choose from.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.4519628,
+      50.91816379999999
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 1132450,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "STBS.jpeg"
+},{
+  "_id": {
+    "$oid": "624484bcd47b78de552c90b2"
+  },
+  "name": "St Barnabas House Lyons Farm",
+  "address": {
+    "address1": "Unit 1a",
+    "address2": "Lyons Farm Retail Park",
+    "address3": "Worthing",
+    "postcode": "BN14 9LA",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "Our newest shop is open at Lyons Farm Retail Park, next to Sainsbury’s. Filled to the brim with lots of exciting stock. Clothes, shoes, handbags, accessories, bric-a-brac, games, toys, and books – there is something for everyone.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.364696,
+      50.8365684
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 1646859,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "STBL.jpeg"
+},{
+  "_id": {
+    "$oid": "6245c3b90a389fefff28c8aa"
+  },
+  "name": "St Barnabas House Durrington",
+  "address": {
+    "address1": "10-12 Manor Parade",
+    "address2": "Salvington Road",
+    "address3": "Durrington",
+    "postcode": "BN13 2JP",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "Our Durrington charity shop is one of our largest shops. We have a huge range of furniture, bric-a-brac and homeware as well as ladieswear, menswear and childrenswear. The shop can also collect and deliver large items of furniture.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.4111231,
+      50.83544080000001
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 452372,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "STBD.jpeg"
+},{
+  "_id": {
+    "$oid": "6246c9340a389fefff28c8ae"
+  },
+  "name": "St Barnabas House Wick",
+  "address": {
+    "address1": "68-70 Wick Street",
+    "address2": "Wick",
+    "address3": null,
+    "postcode": "BN17 7JS",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "One of our largest shops, Wick is a mini department store with something for everyone – good quality furniture, white goods, bric-a-brac, toys, games and books. Also clothing for ladies, gents and children, including many High Street brands at low prices. The shop can also collect and deliver large items of furniture.",
+  "locationType": "Retail",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.543786,
+      50.818159
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 485907,
+  "openOohChild": 205,
+  "openOohParent": 2,
+  "image": "STBW.jpeg"
+},{
+  "_id": {
+    "$oid": "6289f2571f53251c9e47e72a"
+  },
+  "name": "Guild Care Haviland House",
+  "address": {
+    "address1": "Haviland House",
+    "address2": "Robin Road",
+    "address3": "Goring-by-sea",
+    "postcode": "BN12 6FE",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Haviland House Dementia Care Home in Worthing, West Sussex\nHaviland House is a specialist dementia care home located at the foot of the South Downs in Goring, West Sussex. It was purpose built in 2015 to fulfil the needs of residents living with different stages of dementia.\n\nIn 2019 Haviland House was a ‘Best Dementia Care Home’ finalist in the National Dementia Care Awards and the home’s Health & Wellbeing Coordinator won the National Activity Providers Association’s ‘Best Activity Coordinator’ award.",
+  "locationType": null,
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.4291788,
+      50.8234727
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 150132,
+  "openOohParent": 5,
+  "openOohChild": 501,
+  "image": "GCHH.jpeg"
+},{
+  "_id": {
+    "$oid": "6289f3041f53251c9e47e72b"
+  },
+  "name": "Guild Care Caer Gwent",
+  "address": {
+    "address1": "Caer Gwent",
+    "address2": "1 Downview Road",
+    "address3": "Worthing",
+    "postcode": "BN11 4TA",
+    "county": "West SUssex",
+    "country": "United Kingdom"
+  },
+  "description": "## Caer Gwent Nursing Care Home in Worthing, West Sussex\nCaer Gwent combines superb residential living with 24-hour expert nursing care, supporting individuals with complex health conditions, particularly focusing on palliative (i.e. end of life) support.\n\nOpened in 1988 by the Earl of March, Caer Gwent is an elegant care home set in a quiet residential area of Worthing. Our home features spacious and airy surroundings, beautiful furnishings and well-tended landscaped gardens.",
+  "locationType": null,
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.3899174,
+      50.8149642
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": false,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 374200,
+  "openOohParent": 5,
+  "openOohChild": 501,
+  "image": "GCHH.jpeg"
+},{
+  "_id": {
+    "$oid": "6289f6981f53251c9e47e72c"
+  },
+  "name": "Guild Care Linfield House",
+  "address": {
+    "address1": "Linfield House",
+    "address2": "18 - 22 Wykeham Road",
+    "address3": "Worthing",
+    "postcode": "BN11 4JD",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "## Linfield House Nursing Care Home in Worthing, West Sussex\nLinfield House is a residential and nursing care home that includes two dementia suites. We promote independent living, providing residents with the support and person-centred care that they need to flourish.\n\nIn the 15 years that we have owned and run Linfield House, it has successfully supported couples, particularly when one has dementia and one does not.",
+  "locationType": null,
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.3814128,
+      50.81462089999999
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 198948,
+  "openOohParent": 5,
+  "openOohChild": 501,
+  "image": "GCLI.jpeg"
+},{
+  "_id": {
+    "$oid": "630e07003d4a64dd13a1ee04"
+  },
+  "name": "Hope Hive",
+  "address": {
+    "address1": "Hope Hive",
+    "address2": "St Dunstan’s Road",
+    "address3": "West Worthing",
+    "postcode": "BN13 1AA",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "Hope Hive is a family venue where families can be together, connect with others, play, learn and create. \n\nWe are passionate about supporting families to thrive with over 25 years of experience supporting young children in their growth and development.",
+  "locationType": null,
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.3943184,
+      50.818692
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 470845,
+  "openOohParent": 8,
+  "openOohChild": 801,
+  "image": "Hope.jpeg"
+},{
+  "_id": {
+    "$oid": "630f724f3d4a64dd13a1ee07"
+  },
+  "name": "Chestnut Tree House Havant",
+  "address": {
+    "address1": "6 West Street",
+    "address2": "Havant",
+    "address3": null,
+    "postcode": "PO9 1PF",
+    "county": "Hampshire",
+    "country": "United Kingdom"
+  },
+  "description": "Situated in West Street, Havant is our largest furniture shop and can arrange furniture collection and deliveries. \n\nWe also stock clothing, accessories, bric-a-brac, small electricals, homewares, toys and games.",
+  "locationType": null,
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.9819013999999999,
+      50.8515322
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 225384,
+  "openOohParent": 2,
+  "openOohChild": 202,
+  "image": "CTHH.jpeg"
+},{
+  "_id": {
+    "$oid": "630f75543d4a64dd13a1ee0a"
+  },
+  "name": "Chestnut Tree House Bognor",
+  "address": {
+    "address1": "3 London Road",
+    "address2": "Bognor Regis",
+    "address3": null,
+    "postcode": "PO21 1PQ",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "We stock a varied range of quality ladieswear and accessories, menswear and also children’s clothes and toys. \n\nThe Bridal Department on the first floor sells a gorgeous range of new and pre-loved wedding dresses.",
+  "locationType": null,
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.6726460000000001,
+      50.78379779999999
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 782218,
+  "openOohParent": 2,
+  "openOohChild": 202,
+  "image": "CTHB.jpeg"
+},{
+  "_id": {
+    "$oid": "631f7e5c3d4a64dd13a1ee0e"
+  },
+  "name": "Tonbridge Angels FC",
+  "address": {
+    "address1": "Longmead Stadium",
+    "address2": "Darenth Ave",
+    "address3": "Tonbridge",
+    "postcode": "TN10 3JF",
+    "county": "Kent",
+    "country": "United Kingdom"
+  },
+  "description": "Tonbridge Football Club were formed in October 1947 following the suggestion of local businessman and founder chairman Mr. Herbert Portch, and were one of four clubs to be elected to the Southern League for the 1948-49 season. ",
+  "locationType": null,
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      0.269913,
+      51.211445
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 559032,
+  "openOohParent": 8,
+  "openOohChild": 803,
+  "image": "TAFC.jpeg"
+},{
+  "_id": {
+    "$oid": "633329043d4a64dd13a1ee16"
+  },
+  "name": "St Barnabas Rowlands Road",
+  "address": {
+    "address1": "11 Rowlands Road",
+    "address2": "Worthing",
+    "address3": null,
+    "postcode": "BN11 3JJ",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "Set in a parade of independent shops, our sells good quality ladieswear, menswear, childrenswear and accessories. The Wedding Boutique is situated upstairs and stocks a range of new and pre-loved wedding dresses, bridal accessories, bridesmaids and prom dresses.",
+  "locationType": null,
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.379038,
+      50.8097192
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 192572,
+  "openOohParent": 2,
+  "openOohChild": 202,
+  "image": "STBRowlands.jpeg"
+},{
+  "_id": {
+    "$oid": "6340475f3d4a64dd13a1ee19"
+  },
+  "name": "St Barnabas House Shoreham",
+  "address": {
+    "address1": "46 High Street",
+    "address2": "Shoreham",
+    "address3": null,
+    "postcode": "BN43 5DA",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "Our St Barnabas House shop in Shoreham High Street, sells a range of items including clothing, accessories, shoes, handbags, bric-a-brac and books. There is also a children’s corner selling clothes, toys and games. The shop is open 7 days a week.",
+  "locationType": null,
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.2764629,
+      50.8321589
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 0,
+  "openOohParent": 2,
+  "openOohChild": 202,
+  "image": "STBSh.jpeg"
+},{
+  "_id": {
+    "$oid": "634047f53d4a64dd13a1ee1a"
+  },
+  "name": "St Barnabas House Littlehampton",
+  "address": {
+    "address1": "3 Duke Street",
+    "address2": "Littlehampton",
+    "address3": null,
+    "postcode": "BN17 6EU",
+    "county": "West Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "Situated in Anchor Springs, just off the High Street, the shop sells a large selection of ladies and menswear, shoes, bags, accessories, curtains, bed linen, children’s toys, games and puzzles. It also stocks a range of new pet goods for your furry friends.",
+  "locationType": null,
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      -0.5422485,
+      50.81028149999999
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 0,
+  "openOohParent": 2,
+  "openOohChild": 202,
+  "image": "STBLA.jpeg"
+},{
+  "_id": {
+    "$oid": "635c094db11996e31fdd6f20"
+  },
+  "name": "Body Happy Lewes",
+  "address": {
+    "address1": "Lower Ground Floor",
+    "address2": "40-42 Friars Walk",
+    "address3": "Lewes",
+    "postcode": "BN7 2LG",
+    "county": "East Sussex",
+    "country": "United Kingdom"
+  },
+  "description": "Body Happy is a supportive, encouraging community of people in Lewes who are all proud to help you achieve your goals and stay fit, happy and healthy for life.",
+  "locationType": null,
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      0.0143307,
+      50.87363130000001
+    ]
+  },
+  "adSpaceId": "5fcd0a38f6075d000a236e82",
+  "languages": [
+    "English"
+  ],
+  "live": true,
+  "programmaticDesired": true,
+  "isMobile": null,
+  "geoFence": null,
+  "mapCenter": null,
+  "hasInventory": true,
+  "hasAdmInventory": true,
+  "countInventory": 1,
+  "countAdmInventory": 1,
+  "averageFootfall": 70581,
+  "openOohParent": 4,
+  "openOohChild": 401,
+  "image": "BodyHappy.jpeg"
+},
+  {
+    "_id": {
+      "$oid": "46"
+    },
+    "name": "Guild Care Crawley",
+    "address": {
+      "address1": "48 The Broadway",
+      "address2": "",
+      "address3": "Crawley",
+      "postcode": "RH10 1HG",
+      "county": "West Sussex",
+      "country": "United Kingdom"
+    },
+    "description": "This is a brand new retail unit for Guild Care right in the heart of Crawley town centre.",
+    "locationType": null,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -0.18834734753451,
+        51.114766214391
+      ]
+    },
+    "adSpaceId": "5fcd0a38f6075d000a236e82",
+    "languages": [
+      "English"
+    ],
+    "live": true,
+    "programmaticDesired": true,
+    "isMobile": null,
+    "geoFence": null,
+    "mapCenter": null,
+    "hasInventory": true,
+    "hasAdmInventory": true,
+    "countInventory": 1,
+    "countAdmInventory": 1,
+    "averageFootfall": 70581,
+    "openOohParent": 4,
+    "openOohChild": 401,
+    "image": "GCCrawley.jpeg"
+  },
+  {
+    "_id": {
+      "$oid": "47"
+    },
+    "name": "Guildbourne Centre",
+    "address": {
+      "address1": "The Guildbourne Centre",
+      "address2": "",
+      "address3": "Worthing",
+      "postcode": "BN11 1LZ",
+      "county": "West Sussex",
+      "country": "United Kingdom"
+    },
+    "description": "Worthings only town centre shopping mall. With a variety of local and national businesses in side and high footfall. This is a fantastic location to boost your business.",
+    "locationType": null,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -0.36933677325337666,
+        50.81270624933763
+      ]
+    },
+    "adSpaceId": "5fcd0a38f6075d000a236e82",
+    "languages": [
+      "English"
+    ],
+    "live": true,
+    "programmaticDesired": true,
+    "isMobile": null,
+    "geoFence": null,
+    "mapCenter": null,
+    "hasInventory": true,
+    "hasAdmInventory": true,
+    "countInventory": 1,
+    "countAdmInventory": 1,
+    "averageFootfall": 70581,
+    "openOohParent": 4,
+    "openOohChild": 401,
+    "image": "GBC.JPG"
+  },
+  {
+    "_id": {
+      "$oid": "48"
+    },
+    "name": "Guild Care Hove",
+    "address": {
+      "address1": "Guild Care Hove",
+      "address2": "93-94 George St",
+      "address3": "Hove",
+      "postcode": "BN3 3YE",
+      "county": "East Sussex",
+      "country": "United Kingdom"
+    },
+    "description": "We are excited to confirm that a new Guild Care charity shop is now open in Hove! We sell an exciting range of high quality goods such as clothing, accessories, toys, bric-a-brac, homeware, books, DVD's and more. Visit us today to shop or donate.",
+    "locationType": null,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -0.17385997320797458,
+        50.82915202758255
+      ]
+    },
+    "adSpaceId": "5fcd0a38f6075d000a236e82",
+    "languages": [
+      "English"
+    ],
+    "live": true,
+    "programmaticDesired": true,
+    "isMobile": null,
+    "geoFence": null,
+    "mapCenter": null,
+    "hasInventory": true,
+    "hasAdmInventory": true,
+    "countInventory": 1,
+    "countAdmInventory": 1,
+    "averageFootfall": 70581,
+    "openOohParent": 4,
+    "openOohChild": 401,
+    "image": "GCHove.jpeg"
+  },
+  {
+    "_id": {
+      "$oid": "49"
+    },
+    "name": "Guild Care Horsham",
+    "address": {
+      "address1": "Guild Care Horsham",
+      "address2": "44 West Street",
+      "address3": "Horsham",
+      "postcode": "RH12 1PP",
+      "county": "West Sussex",
+      "country": "United Kingdom"
+    },
+    "description": "We are excited to confirm that a new Guild Care charity shop is now open in Horsham! We sell an exciting range of high quality goods such as clothing, accessories, toys, bric-a-brac, homeware, books, DVD's and more. Visit us today to shop or donate.",
+    "locationType": null,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -0.331778,
+        51.063269
+      ]
+    },
+    "adSpaceId": "5fcd0a38f6075d000a236e82",
+    "languages": [
+      "English"
+    ],
+    "live": true,
+    "programmaticDesired": true,
+    "isMobile": null,
+    "geoFence": null,
+    "mapCenter": null,
+    "hasInventory": true,
+    "hasAdmInventory": true,
+    "countInventory": 1,
+    "countAdmInventory": 1,
+    "averageFootfall": 70581,
+    "openOohParent": 4,
+    "openOohChild": 401,
+    "image": "GCHorsham.jpeg"
+  },
+  {
+    "_id": {
+      "$oid": "50"
+    },
+    "name": "Swan Walk Horsham",
+    "address": {
+      "address1": "Swan Walk",
+      "address2": "12 Medwin Way",
+      "address3": "Horsham",
+      "postcode": "RH12 1HQ",
+      "county": "West Sussex",
+      "country": "United Kingdom"
+    },
+    "description": "We offer big brand shopping within a local and convenient environment. We have a fantastic range of high street fashion retailers alongside quality independents and premium beauty brands.",
+    "locationType": null,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -0.3297557175881294,
+        51.06346045260779
+      ]
+    },
+    "adSpaceId": "5fcd0a38f6075d000a236e82",
+    "languages": [
+      "English"
+    ],
+    "live": true,
+    "programmaticDesired": true,
+    "isMobile": null,
+    "geoFence": null,
+    "mapCenter": null,
+    "hasInventory": true,
+    "hasAdmInventory": true,
+    "countInventory": 1,
+    "countAdmInventory": 1,
+    "averageFootfall": 70581,
+    "openOohParent": 4,
+    "openOohChild": 401,
+    "image": "SWNext.jpeg"
+  }]
