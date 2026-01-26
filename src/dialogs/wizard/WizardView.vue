@@ -122,38 +122,51 @@ const handleGridClick = (event: MouseEvent) => {
   selectVenue(venue);
 }
 
+// Tier configuration: SOV percentages and price multipliers
+// Based on 10-second slots (360 slots/hour) with ~10% volume discount per tier
+const TIER_CONFIG = {
+  starter: { sov: 2.08, multiplier: 1.0 },    // 1 in 48 rotation
+  optimal: { sov: 4.16, multiplier: 1.8 },    // 1 in 24 rotation
+  enhanced: { sov: 8.33, multiplier: 3.2 },   // 1 in 12 rotation
+  oneInSix: { sov: 16.67, multiplier: 5.6 },  // 1 in 6 rotation
+};
+
 const plans = ref<Plan[]>([
   {
     name: "Starter",
     description: "Gets you on screen for the lowest price",
     price: 0,
-    feature1: "8-10 plays/screen/hour",
+    feature1: "~8 plays/screen/hour",
     features: []
   },
   {
     name: "Optimal",
     description: "For businesses that want more exposure",
     price: 0,
-    feature1: "18-20 plays/screen/hour",
+    feature1: "~15 plays/screen/hour",
     features: []
   },
   {
     name: "Enhanced",
+    description: "High visibility for your business",
+    price: 0,
+    feature1: "~30 plays/screen/hour",
+    features: []
+  },
+  {
+    name: "1 in 6",
     description: "Maximum exposure for your business",
     price: 0,
-    feature1: "36-40 plays/screen/hour",
+    feature1: "~60 plays/screen/hour",
     features: []
   },
 ]);
 
 const resetCalculations = () => {
-  plans.value[0].features = [];
-  plans.value[1].features = [];
-  plans.value[2].features = [];
-
-  plans.value[0].price = 0;
-  plans.value[1].price = 0;
-  plans.value[2].price = 0;
+  plans.value.forEach(plan => {
+    plan.features = [];
+    plan.price = 0;
+  });
   totalRate.value = 0;
 }
 
@@ -177,58 +190,61 @@ const calculateQuote = () => {
   // Apply Charity
   if (isCharity.value) {
     totalDiscount = totalDiscount + 0.25;
-    plans.value[0].features.push("Includes Charity discount of 25%");
-    plans.value[1].features.push("Includes Charity discount of 25%");
-    plans.value[2].features.push("Includes Charity discount of 25%");
+    plans.value.forEach(plan => plan.features.push("Includes Charity discount of 25%"));
   }
   // Apply Partner
   if (isPartner.value) {
     totalDiscount = totalDiscount + 0.25;
-    plans.value[0].features.push("Includes Partner discount of 25%");
-    plans.value[1].features.push("Includes Partner discount of 25%");
-    plans.value[2].features.push("Includes Partner discount of 25%");
+    plans.value.forEach(plan => plan.features.push("Includes Partner discount of 25%"));
   }
   // Apply Chamber
   if (isChamber.value) {
     totalDiscount = totalDiscount + 0.25;
-    plans.value[0].features.push("Includes Chamber discount of 25%");
-    plans.value[1].features.push("Includes Chamber discount of 25%");
-    plans.value[2].features.push("Includes Chamber discount of 25%");
+    plans.value.forEach(plan => plan.features.push("Includes Chamber discount of 25%"));
   }
   // Apply Circle
   if (isCircle.value) {
     totalDiscount = totalDiscount + 0.25;
-    plans.value[0].features.push("Includes WBC discount of 25%");
-    plans.value[1].features.push("Includes WBC discount of 25%");
-    plans.value[2].features.push("Includes WBC discount of 25%");
+    plans.value.forEach(plan => plan.features.push("Includes WBC discount of 25%"));
   }
   // Apply MultiSite
   if (selectedVenues.value && selectedVenues.value?.selected.length >= 2) {
     totalDiscount = totalDiscount + 0.10;
-    plans.value[0].features.push("Includes Multi Site discount of 10%");
-    plans.value[1].features.push("Includes Multi Site discount of 10%");
-    plans.value[2].features.push("Includes Multi Site discount of 10%");
+    plans.value.forEach(plan => plan.features.push("Includes Multi Site discount of 10%"));
   }
   // Apply MultiMonth
   if (duration.value >= 3) {
     totalDiscount = totalDiscount + 0.10;
-    plans.value[0].features.push("Includes Multi Month discount of 10%");
-    plans.value[1].features.push("Includes Multi Month discount of 10%");
-    plans.value[2].features.push("Includes Multi Month discount of 10%");
+    plans.value.forEach(plan => plan.features.push("Includes Multi Month discount of 10%"));
   }
-  // Apply Impressions
-  plans.value[0].features.push(`Total Impressions Per Month: ${(2.5 / 100) * totalImpressionsPerMonth}`);
-  plans.value[1].features.push(`Total Impressions Per Month: ${(5 / 100) * totalImpressionsPerMonth}`);
-  plans.value[2].features.push(`Total Impressions Per Month: ${(10 / 100) * totalImpressionsPerMonth}`);
 
-  plans.value[0].features.push(`Total Impressions Per Fortnight: ${(2.5 / 100) * totalImpressionsPerFortnight}`);
-  plans.value[1].features.push(`Total Impressions Per Fortnight: ${(5 / 100) * totalImpressionsPerFortnight}`);
-  plans.value[2].features.push(`Total Impressions Per Fortnight: ${(10 / 100) * totalImpressionsPerFortnight}`);
+  // SOV percentages for each tier
+  const sovPercentages = [
+    TIER_CONFIG.starter.sov,
+    TIER_CONFIG.optimal.sov,
+    TIER_CONFIG.enhanced.sov,
+    TIER_CONFIG.oneInSix.sov,
+  ];
 
+  // Apply Impressions with formatting
+  plans.value.forEach((plan, index) => {
+    const monthlyImpressions = Math.round((sovPercentages[index] / 100) * totalImpressionsPerMonth);
+    const fortnightImpressions = Math.round((sovPercentages[index] / 100) * totalImpressionsPerFortnight);
+    plan.features.push(`Total Impressions Per Month: ${monthlyImpressions.toLocaleString()}`);
+    plan.features.push(`Total Impressions Per Fortnight: ${fortnightImpressions.toLocaleString()}`);
+  });
+
+  // Apply discount and calculate prices with tier multipliers
   applyDiscount(totalDiscount);
-  plans.value[0].price = totalRate.value;
-  plans.value[1].price = totalRate.value * 1.8;
-  plans.value[2].price = totalRate.value * 3.5;
+  const multipliers = [
+    TIER_CONFIG.starter.multiplier,
+    TIER_CONFIG.optimal.multiplier,
+    TIER_CONFIG.enhanced.multiplier,
+    TIER_CONFIG.oneInSix.multiplier,
+  ];
+  plans.value.forEach((plan, index) => {
+    plan.price = totalRate.value * multipliers[index];
+  });
 };
 
 const applyDiscount = (discount: number) => {
@@ -326,12 +342,28 @@ const scrollToCTA = () => {
     ctaSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 };
+
+// Tier styling helpers
+const getTierClass = (index: number): string => {
+  const tierClasses = ['starter', 'optimal', 'featured', 'premium'];
+  return tierClasses[index] || '';
+};
+
+const getTierBadge = (index: number): string | null => {
+  const badges = [null, null, 'Most Popular', 'Best Value'];
+  return badges[index] || null;
+};
+
+const getTierCTAClass = (index: number): string => {
+  const classes = ['', '', 'featured-cta', 'premium-cta'];
+  return classes[index] || '';
+};
 </script>
 
 <template>
-  <Dialog v-model:visible="props.openWizard" modal :style="{ width: '80rem' }"
+  <Dialog v-model:visible="props.openWizard" modal :style="{ width: '95rem' }"
           class="wizard-dialog"
-          style="max-height: 90vh; overflow-y: auto;" :breakpoints="{ '1199px': '85vw', '575px': '95vw' }" :closable="false" :draggable="false">
+          style="max-height: 90vh; overflow-y: auto;" :breakpoints="{ '1199px': '90vw', '575px': '95vw' }" :closable="false" :draggable="false">
 
     <!-- Header with Progress -->
     <template #header>
@@ -564,28 +596,35 @@ const scrollToCTA = () => {
 
       <!-- STEP 3: Quote -->
       <div v-if="active === 2" class="step-container">
-          <div class="mb-8 text-center">
-            <h3 class="text-3xl font-bold text-gray-900 dark:text-white">Your Custom Quote</h3>
-            <p class="text-gray-600 dark:text-gray-300 mt-2 text-lg">Choose the plan that works best for your business</p>
+          <div class="mb-6 text-center">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Your Custom Quote</h3>
+            <p class="text-gray-600 dark:text-gray-300 mt-1 text-base">Choose the plan that works best for your business</p>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">All prices shown are per month + VAT</p>
           </div>
 
           <!-- Pricing Cards -->
           <div class="pricing-grid">
-            <div v-for="(plan, index) in plans" :key="index" :class="['pricing-card', { 'featured': index === 1 }]">
-              <div v-if="index === 1" class="featured-badge">Most Popular</div>
+            <div v-for="(plan, index) in plans" :key="index" :class="['pricing-card', getTierClass(index)]">
+              <!-- Tier Badge -->
+              <div v-if="getTierBadge(index)" :class="['tier-badge', `tier-badge-${index}`]">
+                {{ getTierBadge(index) }}
+              </div>
 
+              <!-- Card Header -->
               <div class="pricing-header">
                 <h4 class="pricing-name">{{ plan.name }}</h4>
                 <p class="pricing-description">{{ plan.description }}</p>
               </div>
 
-              <div class="pricing-price">
-                <span class="currency">£</span>
-                <span class="amount">{{ plan.price.toFixed(2) }}</span>
-                <span class="period">/month</span>
+              <!-- Pricing -->
+              <div class="pricing-price-container">
+                <div class="pricing-price">
+                  <span class="currency">£</span>
+                  <span class="amount">{{ plan.price.toFixed(2) }}</span>
+                </div>
               </div>
-              <p class="pricing-vat">+ VAT</p>
 
+              <!-- Features -->
               <div class="pricing-features">
                 <div class="feature-item highlight">
                   <i class="pi pi-bolt"></i>
@@ -597,10 +636,11 @@ const scrollToCTA = () => {
                 </div>
               </div>
 
+              <!-- CTA Button -->
               <Button
                 @click="scrollToCTA"
-                :label="index === 1 ? 'Get Started' : 'Choose Plan'"
-                :class="['pricing-cta-button', { 'featured-cta': index === 1 }]"
+                label="Get Started"
+                :class="['pricing-cta-button', getTierCTAClass(index)]"
                 size="large"
               />
             </div>
@@ -640,14 +680,35 @@ const scrollToCTA = () => {
 </template>
 
 <style scoped>
-/* Override PrimeVue color scheme to use Blue Billboard blue */
+/* Enhanced Step Indicators */
+:deep(.p-steps) {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+:deep(.p-steps .p-steps-item) {
+  flex: 1;
+  position: relative;
+}
+
 :deep(.p-steps .p-steps-item.p-highlight .p-steps-number) {
-  background-color: #0d47a1 !important;
-  border-color: #0d47a1 !important;
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+  border-color: #0d47a1;
+  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.2);
 }
 
 :deep(.p-steps .p-steps-item.p-highlight .p-steps-title) {
   color: #0d47a1 !important;
+  font-weight: 600;
+}
+
+:deep(.p-steps .p-steps-item.p-disabled .p-steps-number) {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+:deep(.p-steps-connector.p-highlight) {
+  background: linear-gradient(90deg, #0d47a1 0%, #60a5fa 100%);
 }
 
 :deep(.p-button:not(.p-button-outlined):not(.p-button-text)) {
@@ -744,12 +805,13 @@ const scrollToCTA = () => {
 
 /* Layout */
 .wizard-content {
-  padding: 1.5rem 0;
+  padding: 1rem 0;
   min-height: 400px;
 }
 
 .step-container {
   animation: slideIn 0.3s ease;
+  padding: 0;
 }
 
 @keyframes slideIn {
@@ -885,27 +947,44 @@ const scrollToCTA = () => {
   margin: 0 auto;
 }
 
+/* Enhanced Info Form Section */
 .info-section {
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: #f9fafb;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
   border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
 }
 
+.info-section:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 8px rgba(13, 71, 161, 0.05);
+}
+
+/* Enhanced Info Label */
 .info-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   font-size: 1.125rem;
   font-weight: 600;
   color: #111827;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
+.info-label i {
+  color: #0d47a1;
+  font-size: 1.25rem;
+}
+
+/* Enhanced Info Hint */
 .info-hint {
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   font-size: 0.875rem;
   color: #6b7280;
+  font-style: italic;
+  letter-spacing: 0.3px;
 }
 
 .discount-options {
@@ -914,26 +993,49 @@ const scrollToCTA = () => {
   gap: 1rem;
 }
 
+/* Enhanced Discount Cards */
 .discount-card {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem;
+  padding: 1.25rem;
   background: white;
   border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.discount-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(13, 71, 161, 0.02) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.discount-card:hover:not(.disabled)::before {
+  opacity: 1;
 }
 
 .discount-card:hover:not(.disabled) {
   border-color: #0d47a1;
-  background: #f0f7ff;
+  background: #f8fafc;
+  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.1);
+  transform: translateY(-2px);
 }
 
 .discount-card.disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
+  background: #f9fafb;
 }
 
 .discount-info {
@@ -949,14 +1051,20 @@ const scrollToCTA = () => {
   align-items: center;
 }
 
+/* Enhanced Discount Value Badge */
 .discount-value {
-  padding: 0.25rem 0.75rem;
-  background: #dcfce7;
-  color: #166534;
-  border-radius: 6px;
-  font-weight: 600;
+  padding: 0.375rem 1rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: 8px;
+  font-weight: 700;
   font-size: 0.875rem;
   white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.discount-card:hover:not(.disabled) .discount-value {
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .selected-venues-summary {
@@ -976,64 +1084,191 @@ const scrollToCTA = () => {
   font-size: 0.875rem;
 }
 
-/* Pricing Grid */
+/* Pricing Grid - Responsive Layout */
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
   margin-bottom: 3rem;
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 1920px) {
   .pricing-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
   }
 }
 
+@media (min-width: 1200px) and (max-width: 1919px) {
+  .pricing-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) {
+  .pricing-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 899px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+/* Pricing Card Base */
 .pricing-card {
   position: relative;
   background: white;
   border: 2px solid #e5e7eb;
   border-radius: 12px;
-  padding: 2rem;
+  padding: 1.25rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
+/* Starter Tier - Baseline */
+.pricing-card.starter {
+  opacity: 0.95;
+}
+
+.pricing-card.starter:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 4px 6px rgba(13, 71, 161, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Optimal Tier - Slight Elevation */
+.pricing-card.optimal {
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(13, 71, 161, 0.08);
+}
+
+.pricing-card.optimal:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 8px 16px rgba(13, 71, 161, 0.12);
+  transform: scale(1.01) translateY(-2px);
+}
+
+/* Featured Tier - Enhanced */
 .pricing-card.featured {
+  transform: scale(1.03);
   border-color: #0d47a1;
-  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.15);
+  border-width: 2px;
+  box-shadow: 0 8px 24px rgba(13, 71, 161, 0.15);
+  background: linear-gradient(135deg, rgba(13, 71, 161, 0.02) 0%, rgba(13, 71, 161, 0.01) 100%);
 }
 
-.featured-badge {
+.pricing-card.featured:hover {
+  border-color: #0d47a1;
+  box-shadow: 0 16px 40px rgba(13, 71, 161, 0.2);
+  transform: scale(1.03) translateY(-3px);
+}
+
+/* Premium Tier - Highest Prominence */
+.pricing-card.premium {
+  transform: scale(1.04);
+  border: 2px solid #0d47a1;
+  box-shadow: 0 12px 32px rgba(13, 71, 161, 0.2);
+  background: linear-gradient(135deg, rgba(13, 71, 161, 0.04) 0%, rgba(13, 71, 161, 0.02) 100%);
+}
+
+.pricing-card.premium:hover {
+  border-color: #0d47a1;
+  box-shadow: 0 20px 48px rgba(13, 71, 161, 0.25);
+  transform: scale(1.04) translateY(-4px);
+}
+
+/* Tier Badge Styling */
+.tier-badge {
   position: absolute;
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
-  color: white;
   padding: 0.375rem 1.25rem;
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.tier-badge-2 {
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+  color: white;
+}
+
+.tier-badge-3 {
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.25);
 }
 
 .pricing-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 0.75rem;
 }
 
 .pricing-name {
-  font-size: 1.875rem;
+  font-size: 1.375rem;
   font-weight: 700;
   color: #111827;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.025em;
+}
+
+.pricing-card.optimal .pricing-name {
+  font-size: 1.5rem;
+}
+
+.pricing-card.featured .pricing-name {
+  font-size: 1.625rem;
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pricing-card.premium .pricing-name {
+  font-size: 1.75rem;
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .pricing-description {
   color: #6b7280;
-  font-size: 0.975rem;
-  min-height: 2.5rem;
+  font-size: 0.875rem;
+  min-height: 1.75rem;
+  line-height: 1.3;
+}
+
+/* Pricing Price Container */
+.pricing-price-container {
+  margin-bottom: 1rem;
+  padding: 0.875rem;
+  background: rgba(13, 71, 161, 0.02);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.pricing-card.optimal .pricing-price-container {
+  background: rgba(96, 165, 250, 0.05);
+}
+
+.pricing-card.featured .pricing-price-container,
+.pricing-card.premium .pricing-price-container {
+  background: linear-gradient(135deg, rgba(13, 71, 161, 0.08) 0%, rgba(13, 71, 161, 0.04) 100%);
+  border: 1px solid rgba(13, 71, 161, 0.1);
 }
 
 .pricing-price {
@@ -1044,70 +1279,118 @@ const scrollToCTA = () => {
 }
 
 .currency {
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #374151;
 }
 
 .amount {
-  font-size: 3.5rem;
+  font-size: 2.25rem;
   font-weight: 800;
   color: #0d47a1;
   line-height: 1;
   margin: 0 0.25rem;
 }
 
-.period {
-  font-size: 1rem;
-  color: #6b7280;
+.pricing-card.optimal .amount {
+  font-size: 2.5rem;
 }
 
-.pricing-vat {
-  text-align: center;
-  color: #9ca3af;
-  font-size: 0.875rem;
-  margin-bottom: 2rem;
+.pricing-card.featured .amount {
+  font-size: 2.75rem;
 }
+
+.pricing-card.premium .amount {
+  font-size: 3rem;
+}
+
+
 
 .pricing-features {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .feature-item {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  font-size: 0.9rem;
+  gap: 0.5rem;
+  font-size: 0.75rem;
   color: #374151;
+  line-height: 1.3;
 }
 
+/* Feature Items - Tier-specific colors */
 .feature-item i {
   margin-top: 0.125rem;
-  color: #10b981;
   font-size: 1rem;
+  transition: all 0.2s ease;
 }
 
-.feature-item.highlight {
-  background: #eff6ff;
-  padding: 0.75rem;
-  border-radius: 8px;
-  font-weight: 600;
+.pricing-card.starter .feature-item i {
+  color: #9ca3af;
 }
 
-.feature-item.highlight i {
+.pricing-card.optimal .feature-item i {
+  color: #60a5fa;
+}
+
+.pricing-card.featured .feature-item i {
   color: #0d47a1;
 }
 
+.pricing-card.premium .feature-item i {
+  color: #0d47a1;
+  font-weight: 600;
+}
+
+/* Highlight Feature Styling per Tier */
+.feature-item.highlight {
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  border-left: 3px solid transparent;
+  font-size: 0.8rem;
+}
+
+.pricing-card.starter .feature-item.highlight {
+  background: #f3f4f6;
+  border-left-color: #9ca3af;
+}
+
+.pricing-card.optimal .feature-item.highlight {
+  background: #eff6ff;
+  border-left-color: #60a5fa;
+}
+
+.pricing-card.featured .feature-item.highlight {
+  background: linear-gradient(90deg, rgba(13, 71, 161, 0.1) 0%, rgba(13, 71, 161, 0.05) 100%);
+  border-left-color: #0d47a1;
+  font-weight: 600;
+}
+
+.pricing-card.premium .feature-item.highlight {
+  background: linear-gradient(90deg, rgba(13, 71, 161, 0.15) 0%, rgba(13, 71, 161, 0.08) 100%);
+  border-left-color: #0d47a1;
+  font-weight: 700;
+}
+
+/* CTA Button Hierarchy */
 .pricing-cta-button {
   width: 100%;
-  margin-top: 1.5rem;
+  margin-top: auto;
+  padding: 0.65rem 1rem !important;
   background: #0d47a1;
+  font-size: 0.875rem;
   color: white;
   border: 2px solid #0d47a1;
   font-weight: 600;
   transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .pricing-cta-button:hover {
@@ -1117,27 +1400,45 @@ const scrollToCTA = () => {
   box-shadow: 0 4px 12px rgba(13, 71, 161, 0.3);
 }
 
+/* Featured CTA - Solid Navy */
 .pricing-cta-button.featured-cta,
-.p-button.pricing-cta-button.featured-cta,
 .p-button.pricing-cta-button.featured-cta:not(.p-button-outlined):not(.p-button-text) {
-  background: white !important;
-  background-color: white !important;
-  color: #0d47a1 !important;
-  border-color: white !important;
+  background: #0d47a1 !important;
+  color: white !important;
+  border-color: #0d47a1 !important;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.2);
 }
 
 .pricing-cta-button.featured-cta:hover,
-.p-button.pricing-cta-button.featured-cta:hover,
-.p-button.pricing-cta-button.featured-cta:not(.p-button-outlined):not(.p-button-text):hover {
-  background: #f0f7ff !important;
-  background-color: #f0f7ff !important;
-  color: #0d47a1 !important;
-  border-color: #0d47a1 !important;
+.p-button.pricing-cta-button.featured-cta:hover:not(.p-button-outlined):not(.p-button-text) {
+  background: #1565c0 !important;
+  border-color: #1565c0 !important;
+  box-shadow: 0 8px 20px rgba(13, 71, 161, 0.35);
+  transform: translateY(-3px);
+}
+
+/* Premium CTA - Gradient */
+.pricing-cta-button.premium-cta,
+.p-button.pricing-cta-button.premium-cta:not(.p-button-outlined):not(.p-button-text) {
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%) !important;
+  color: white !important;
+  border: 2px solid transparent !important;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(13, 71, 161, 0.3);
+  letter-spacing: 0.5px;
+}
+
+.pricing-cta-button.premium-cta:hover,
+.p-button.pricing-cta-button.premium-cta:hover:not(.p-button-outlined):not(.p-button-text) {
+  background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%) !important;
+  box-shadow: 0 12px 28px rgba(13, 71, 161, 0.4);
+  transform: translateY(-4px);
 }
 
 /* Call to Action Section */
 .cta-section {
-  margin: 3rem auto 2rem;
+  margin: 2rem auto 1.5rem;
   max-width: 700px;
 }
 
@@ -1286,7 +1587,7 @@ const scrollToCTA = () => {
     color: #9ca3af;
   }
 
-  /* Discount Cards */
+  /* Discount Cards Dark Mode */
   .discount-card {
     background: #111827;
     border-color: #374151;
@@ -1295,6 +1596,11 @@ const scrollToCTA = () => {
   .discount-card:hover:not(.disabled) {
     border-color: #60a5fa;
     background: #1e3a5f;
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.15);
+  }
+
+  .discount-card.disabled {
+    background: #1f2937;
   }
 
   .discount-title {
@@ -1302,8 +1608,13 @@ const scrollToCTA = () => {
   }
 
   .discount-value {
-    background: #065f46;
-    color: #d1fae5;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  }
+
+  .discount-card:hover:not(.disabled) .discount-value {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
   }
 
   /* Selected Venues */
@@ -1313,19 +1624,45 @@ const scrollToCTA = () => {
     color: #f9fafb;
   }
 
-  /* Pricing Cards */
+  /* Pricing Cards Dark Mode */
   .pricing-card {
     background: #1f2937;
     border-color: #374151;
   }
 
-  .pricing-card:hover {
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  .pricing-card.starter {
+    opacity: 0.95;
+  }
+
+  .pricing-card.optimal {
+    background: #1f2937;
+    border-color: #4b5563;
+    box-shadow: 0 2px 8px rgba(96, 165, 250, 0.1);
   }
 
   .pricing-card.featured {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.08) 0%, rgba(96, 165, 250, 0.04) 100%);
     border-color: #60a5fa;
-    box-shadow: 0 10px 30px rgba(96, 165, 250, 0.3);
+    box-shadow: 0 8px 24px rgba(96, 165, 250, 0.15);
+  }
+
+  .pricing-card.premium {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(96, 165, 250, 0.05) 100%);
+    border-color: #60a5fa;
+    box-shadow: 0 12px 32px rgba(96, 165, 250, 0.2);
+  }
+
+  .pricing-card.featured .pricing-name,
+  .pricing-card.premium .pricing-name {
+    background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .pricing-card.featured .amount,
+  .pricing-card.premium .amount {
+    color: #60a5fa;
   }
 
   .pricing-name {
@@ -1348,16 +1685,37 @@ const scrollToCTA = () => {
     color: #9ca3af;
   }
 
-  .pricing-vat {
-    color: #6b7280;
-  }
 
   .feature-item {
     color: #d1d5db;
   }
 
-  .feature-item.highlight {
+  /* Price Container Dark Mode */
+  .pricing-price-container {
+    background: rgba(96, 165, 250, 0.08);
+  }
+
+  .pricing-card.featured .pricing-price-container,
+  .pricing-card.premium .pricing-price-container {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.12) 0%, rgba(96, 165, 250, 0.06) 100%);
+    border-color: rgba(96, 165, 250, 0.15);
+  }
+
+  /* Feature highlights dark mode */
+  .pricing-card.starter .feature-item.highlight {
+    background: #374151;
+    border-left-color: #6b7280;
+  }
+
+  .pricing-card.optimal .feature-item.highlight {
     background: #1e3a5f;
+    border-left-color: #60a5fa;
+  }
+
+  .pricing-card.featured .feature-item.highlight,
+  .pricing-card.premium .feature-item.highlight {
+    background: linear-gradient(90deg, rgba(96, 165, 250, 0.15) 0%, rgba(96, 165, 250, 0.08) 100%);
+    border-left-color: #60a5fa;
   }
 
   /* Save Quote Section */
@@ -1387,21 +1745,34 @@ const scrollToCTA = () => {
   }
 
   .pricing-cta-button.featured-cta,
-  .p-button.pricing-cta-button.featured-cta,
   .p-button.pricing-cta-button.featured-cta:not(.p-button-outlined):not(.p-button-text) {
-    background: white !important;
-    background-color: white !important;
-    color: #1976d2 !important;
-    border-color: white !important;
+    background: #60a5fa !important;
+    color: white !important;
+    border-color: #60a5fa !important;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
   }
 
   .pricing-cta-button.featured-cta:hover,
-  .p-button.pricing-cta-button.featured-cta:hover,
-  .p-button.pricing-cta-button.featured-cta:not(.p-button-outlined):not(.p-button-text):hover {
-    background: #e3f2fd !important;
-    background-color: #e3f2fd !important;
-    color: #1976d2 !important;
-    border-color: #60a5fa !important;
+  .p-button.pricing-cta-button.featured-cta:hover:not(.p-button-outlined):not(.p-button-text) {
+    background: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 8px 20px rgba(96, 165, 250, 0.35);
+  }
+
+  .pricing-cta-button.premium-cta,
+  .p-button.pricing-cta-button.premium-cta:not(.p-button-outlined):not(.p-button-text) {
+    background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%) !important;
+    color: white !important;
+    border: 2px solid transparent !important;
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgba(96, 165, 250, 0.3);
+  }
+
+  .pricing-cta-button.premium-cta:hover,
+  .p-button.pricing-cta-button.premium-cta:hover:not(.p-button-outlined):not(.p-button-text) {
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%) !important;
+    box-shadow: 0 12px 28px rgba(96, 165, 250, 0.4);
   }
 
   /* CTA Section Dark Mode */
