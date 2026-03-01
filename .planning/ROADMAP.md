@@ -26,7 +26,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Dark mode displays a proper dark base map rather than an inverted/ugly color-shifted view
   3. The CSS invert filter is gone from the codebase — dark mode uses a real dark tile layer
   4. Changing system color scheme (light to dark, dark to light) switches the tile layer without a page reload
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 01-01-PLAN.md — Replace OSM tiles with dual Stadia Alidade Smooth layers, remove CSS invert hack
 
 ### Phase 2: Premium Pins
 **Goal**: All venue pins look identical, premium, and render correctly over the new map tiles
@@ -47,5 +50,5 @@ Phases execute in numeric order: 1 → 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Map Tiles | 0/TBD | Not started | - |
+| 1. Map Tiles | 0/1 | Not started | - |
 | 2. Premium Pins | 0/TBD | Not started | - |
