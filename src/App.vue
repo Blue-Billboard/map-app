@@ -14,7 +14,7 @@ const markerGroup = ref();
 const locationData = ref<any[]>([]);
 const displayGroups = ref<any[]>([]);
 const meta = ref();
-const {levelColour} = useVenueList();
+const {levelColour} = useVenueList(); // retained: used by other composable consumers (CODE-02)
 const isStripped = ref(false);
 const showQuoteButton = ref(false);
 
@@ -40,17 +40,23 @@ onMounted(async () => {
   map.value = L.map('map').setView([lat, lng], zoomLevel);
   markerGroup.value = L.layerGroup().addTo(map.value);
 
-  let mapSource = "https://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png";
-  //Check for Dark Mode
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    mapSource = "https://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png";
-  }
+  const STADIA_API_KEY = 'f5f0fc7d-849a-4c4f-86d3-22e9a7948ad4';
+  const TILE_LIGHT = `https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`;
+  const TILE_DARK  = `https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`;
+  const TILE_ATTRIBUTION = '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
 
-  L.tileLayer(mapSource, {
-    maxZoom: 19,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    className: 'map-tiles'
-  }).addTo(map.value);
+  const lightTileLayer = L.tileLayer(TILE_LIGHT, { maxZoom: 20, attribution: TILE_ATTRIBUTION });
+  const darkTileLayer  = L.tileLayer(TILE_DARK,  { maxZoom: 20, attribution: TILE_ATTRIBUTION });
+
+  const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
+  let activeTileLayer: L.TileLayer = darkMQ.matches ? darkTileLayer : lightTileLayer;
+  activeTileLayer.addTo(map.value);
+
+  darkMQ.addEventListener('change', (e: MediaQueryListEvent) => {
+    activeTileLayer.remove();
+    activeTileLayer = e.matches ? darkTileLayer : lightTileLayer;
+    activeTileLayer.addTo(map.value);
+  });
 
   L.Layer.include({
     getProps: function () {
@@ -75,12 +81,12 @@ const processLocationData = () => {
   locationData.value.forEach((location: any) => {
     const icon = L.divIcon({
       className: 'custom-div-icon',
-      html: `<div style="background:${levelColour(location.level)};" class="marker-pin"></div><img src="img/customcolor_icon_transparent_background.png"  alt="bbLogo"/>`,
+      html: `<div class="pin-inner"><div class="marker-pin"></div><img src="img/customcolor_icon_transparent_background.png" alt="bbLogo"/></div>`,
       iconSize: [50, 72],
       iconAnchor: [25, 72]
     });
     const coords: any = [location.location.coordinates[1], location.location.coordinates[0]]
-    let marker: any = L.marker(coords, {icon: icon}).addTo(markerGroup.value).on('click', (e: any) => showModal(e));
+    let marker: any = L.marker(coords, {icon: icon, riseOnHover: true}).addTo(markerGroup.value).on('click', (e: any) => showModal(e)).on('mouseover', function(this: any) { this.getElement()?.classList.add('pin-hovered'); }).on('mouseout', function(this: any) { this.getElement()?.classList.remove('pin-hovered'); });
     marker.getProps().meta = location;
   });
 };

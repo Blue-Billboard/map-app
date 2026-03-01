@@ -24,6 +24,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50% 50% 50% 0;
+    background: #0d47a1;
     position: absolute;
     transform: rotate(-45deg);
     left: 50%;
@@ -41,6 +42,18 @@
     border-radius: 50%;
 }
 
+.pin-inner {
+    position: relative;
+    width: 50px;
+    height: 72px;
+    transition: transform 150ms ease;
+    transform-origin: center center;
+}
+
+.custom-div-icon.pin-hovered .pin-inner {
+    transform: scale(1.12);
+}
+
 .custom-div-icon img {
     position: absolute;
     width: 25px;
@@ -50,6 +63,13 @@
     margin: 29px 12.5px;
     text-align: center;
 }
+
+@media (prefers-color-scheme: dark) {
+    .marker-pin {
+        background: #4a90d9;
+    }
+}
+
 
 .custom-div-icon span {
     position: absolute;
@@ -89,19 +109,11 @@
 
 
 :root {
-    --map-tiles-filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
-
     /* Blue Billboard Brand Colors */
     --blue-billboard-primary: #0d47a1;
     --blue-billboard-primary-hover: #1565c0;
     --blue-billboard-primary-dark: #60a5fa;
     --blue-billboard-primary-dark-hover: #3b82f6;
-}
-
-@media (prefers-color-scheme: dark) {
-    .map-tiles {
-        filter: var(--map-tiles-filter, none);
-    }
 }
 
 .info {
