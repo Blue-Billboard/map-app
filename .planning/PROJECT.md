@@ -1,5 +1,16 @@
 # MapApp — Blue Billboard Venue Map
 
+## Current Milestone: v1.1 Quote Wizard Redesign
+
+**Goal:** Redesign the quote wizard with a bold flat design system that showcases digital screens dramatically and works seamlessly on all devices.
+
+**Target features:**
+- Full flat design redesign of all 3 wizard steps (venue selection, campaign details, quote/pricing)
+- Full-bleed hero venue cards — images fill the card, name/city overlaid
+- Full-screen mobile takeover — wizard fills viewport on small screens
+- Outfit font, zero shadows, color block sections, bold typography throughout
+- Responsive layout at all breakpoints (mobile-first)
+
 ## What This Is
 
 MapApp is a Vue 3 + Leaflet venue showcase for Blue Billboard, displaying billboard advertising locations on an interactive map with quote generation. Shipped v1.0 with premium Stadia Maps cartography (Alidade Smooth light + dark), unified CSS-driven venue pins, and live dark mode switching — the map now matches the premium quality of the venues it displays.
@@ -29,18 +40,26 @@ The map must feel as premium as the venues it displays — first impressions mat
 
 ### Active
 
-- [ ] Pin clustering for dense venue areas
-- [ ] Animated pin entrance on map load
-- [ ] Custom map attribution styling to match brand
+- [ ] Quote wizard redesigned with flat design system — v1.1
+- [ ] Full-bleed venue card images in wizard venue selection step — v1.1
+- [ ] Wizard fully responsive with mobile full-screen takeover — v1.1
+- [ ] Outfit font applied throughout wizard — v1.1
+- [ ] Zero box shadows, no gradients on components, flat color blocks — v1.1
+
+### Deferred (previously Active)
+
+- [ ] Pin clustering for dense venue areas — deferred to future milestone
+- [ ] Animated pin entrance on map load — deferred to future milestone
+- [ ] Custom map attribution styling to match brand — deferred to future milestone
 
 ### Out of Scope
 
 - Changing the map library (staying with Leaflet) — no need to switch
 - Changing the API data source — only visual layer changes
-- Quote wizard changes — separate concern
 - Adding new map functionality (clustering, filters) — future milestone
 - Custom Stadia map style editor — free tier styles are sufficient
 - Mobile app — web-first approach
+- Wizard functional changes (pricing logic, discount rules) — visual redesign only
 
 ## Context
 
@@ -70,4 +89,4 @@ Two known tech debt items from v1.0:
 | Variant comparison via URL param (`?variant=b`) | Temporary dev toggle — no UI overhead, stripped post-approval | ✓ Good — zero variant debt shipped |
 
 ---
-*Last updated: 2026-03-01 after v1.0 milestone*
+*Last updated: 2026-03-03 after v1.1 milestone started*
