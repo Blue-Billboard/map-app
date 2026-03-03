@@ -37,7 +37,11 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
   2. No box shadow appears on any wizard element (buttons, inputs, cards, containers) in any step
   3. The step indicator shows numbered blocks — active step in solid navy, completed steps in navy with a checkmark, pending steps in gray — replacing the default PrimeVue Steps component
   4. Navigating between steps triggers a snappy opacity + translateX slide animation completing in 200ms
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Load Outfit font and remove all box-shadows (CSS baseline)
+- [ ] 03-02-PLAN.md — Custom flat step indicator + direction-aware step transitions
 
 ### Phase 4: Venue Selection
 **Goal**: Step 1 of the wizard shows full-bleed hero venue cards with clear selected state, a flat filter bar, and a bold count chip
@@ -82,7 +86,7 @@ Phases execute in numeric order: 3 → 4 → 5 → 6
 |-------|-----------|----------------|--------|-----------|
 | 1. Map Tiles | v1.0 | 1/1 | Complete | 2026-03-01 |
 | 2. Premium Pins | v1.0 | 2/2 | Complete | 2026-03-01 |
-| 3. Foundation | v1.1 | 0/? | Not started | - |
+| 3. Foundation | v1.1 | 0/2 | Not started | - |
 | 4. Venue Selection | v1.1 | 0/? | Not started | - |
 | 5. Campaign Details + Mobile | v1.1 | 0/? | Not started | - |
 | 6. Quote & Pricing | v1.1 | 0/? | Not started | - |
