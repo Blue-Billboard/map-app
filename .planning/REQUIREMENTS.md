@@ -61,29 +61,29 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| WIZD-01 | — | Pending |
-| WIZD-02 | — | Pending |
-| WIZD-03 | — | Pending |
-| WIZD-04 | — | Pending |
-| WIZD-05 | — | Pending |
-| VENUE-01 | — | Pending |
-| VENUE-02 | — | Pending |
-| VENUE-03 | — | Pending |
-| VENUE-04 | — | Pending |
-| CAMP-01 | — | Pending |
-| CAMP-02 | — | Pending |
-| CAMP-03 | — | Pending |
-| QUOT-01 | — | Pending |
-| QUOT-02 | — | Pending |
-| QUOT-03 | — | Pending |
-| QUOT-04 | — | Pending |
-| QUOT-05 | — | Pending |
+| WIZD-01 | Phase 3 | Pending |
+| WIZD-02 | Phase 5 | Pending |
+| WIZD-03 | Phase 3 | Pending |
+| WIZD-04 | Phase 3 | Pending |
+| WIZD-05 | Phase 3 | Pending |
+| VENUE-01 | Phase 4 | Pending |
+| VENUE-02 | Phase 4 | Pending |
+| VENUE-03 | Phase 4 | Pending |
+| VENUE-04 | Phase 4 | Pending |
+| CAMP-01 | Phase 5 | Pending |
+| CAMP-02 | Phase 5 | Pending |
+| CAMP-03 | Phase 5 | Pending |
+| QUOT-01 | Phase 6 | Pending |
+| QUOT-02 | Phase 6 | Pending |
+| QUOT-03 | Phase 6 | Pending |
+| QUOT-04 | Phase 6 | Pending |
+| QUOT-05 | Phase 6 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 17 total
-- Mapped to phases: 0
-- Unmapped: 17 ⚠️
+- Mapped to phases: 17
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-03*
-*Last updated: 2026-03-03 after initial definition*
+*Last updated: 2026-03-03 after roadmap creation*

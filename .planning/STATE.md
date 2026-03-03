@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Quote Wizard Redesign
-status: defining_requirements
+status: ready_to_plan
 last_updated: "2026-03-03T00:00:00.000Z"
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -18,27 +18,44 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** The map must feel as premium as the venues it displays — first impressions matter.
-**Current focus:** v1.1 — Defining requirements
+**Current focus:** v1.1 Phase 3 — Foundation
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-03 — Milestone v1.1 started
+Phase: 3 of 6 (Foundation)
+Plan: — (not yet planned)
+Status: Ready to plan
+Last activity: 2026-03-03 — Roadmap created for v1.1 (4 phases, 17 requirements mapped)
+
+Progress: [░░░░░░░░░░] 0%
+
+## Performance Metrics
+
+**Velocity:**
+- Total plans completed: 3 (v1.0)
+- Average duration: —
+- Total execution time: —
+
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| v1.0 Phases 1-2 | 3 | — | — |
+
+*Updated after each plan completion*
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-Prior milestone decisions carried forward:
+Recent decisions affecting current work:
 
-- v1.0: Stadia Maps Alidade Smooth tiles, keep Leaflet, unified navy pins
 - v1.0: CSS-driven pin color (class not inline style), scale on .custom-div-icon wrapper
 - v1.1: Wizard brand color stays #0d47a1 (Blue Billboard navy) — not design system #3B82F6
-- v1.1: Mobile wizard = full-screen takeover (no dialog chrome)
-- v1.1: Venue cards = full-bleed hero images (name/city overlaid bottom)
+- v1.1: Mobile wizard = full-screen takeover (no dialog chrome, 100vw × 100dvh)
+- v1.1: Venue cards = full-bleed hero images (name/city overlaid navy band at bottom)
+- v1.1: Flat design system — zero shadows, no gradients on components, Outfit font throughout
 
 ### Pending Todos
 
@@ -51,5 +68,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Milestone v1.1 started — defining requirements
+Stopped at: Roadmap created — Phase 3 ready to plan
 Resume file: None
