@@ -46,6 +46,12 @@ const props = defineProps({
 });
 
 const active = ref<number>(0);
+const transitionName = ref<string>('step-forward');
+
+watch(active, (newVal, oldVal) => {
+  transitionName.value = newVal > oldVal ? 'step-forward' : 'step-back';
+});
+
 const duration = ref<number>(1);
 const items = ref([
   {
@@ -369,23 +375,42 @@ const getTierCTAClass = (index: number): string => {
     <template #header>
       <div class="w-full">
         <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Create Your Quote</h2>
-        <Steps v-model:activeStep="active" :model="items" :readonly="false" class="cursor-pointer" />
+        <div class="wizard-step-indicator">
+          <div
+            v-for="(item, index) in items"
+            :key="index"
+            class="wizard-step-indicator__item"
+          >
+            <button
+              class="wizard-step-indicator__block"
+              :class="{
+                'wizard-step-indicator__block--active': active === index,
+                'wizard-step-indicator__block--complete': active > index,
+                'wizard-step-indicator__block--pending': active < index
+              }"
+              @click="active = index"
+            >
+              <i v-if="active > index" class="pi pi-check" />
+              <span v-else>{{ index + 1 }}</span>
+            </button>
+            <span class="wizard-step-indicator__label">{{ item.label }}</span>
+          </div>
+        </div>
       </div>
     </template>
 
     <div class="wizard-content">
       <!-- STEP 1: Venue Selection -->
-      <div v-if="active === 0" class="step-container">
+      <Transition :name="transitionName">
+      <div v-if="active === 0" key="step-0" class="step-container">
           <div class="flex justify-between items-center mb-6">
             <div>
               <h3 class="text-2xl font-semibold text-gray-900 dark:text-white">Select Your Venues</h3>
               <p class="text-gray-600 dark:text-gray-300 mt-1">Choose the locations where you want to advertise</p>
             </div>
             <div class="flex items-center gap-4">
-              <div v-if="selectedVenues?.selected.length" class="bg-blue-100 dark:bg-blue-900 px-4 py-2 rounded-lg">
-                <span class="text-blue-800 dark:text-blue-200 font-semibold">
-                  {{ selectedVenues.selected.length }} venue{{ selectedVenues.selected.length !== 1 ? 's' : '' }} selected
-                </span>
+              <div v-if="selectedVenues?.selected.length" class="venue-count-chip">
+                <span>{{ selectedVenues.selected.length }} venue{{ selectedVenues.selected.length !== 1 ? 's' : '' }} selected</span>
               </div>
               <Button
                 icon="pi pi-arrow-right"
@@ -399,7 +424,7 @@ const getTierCTAClass = (index: number): string => {
           </div>
 
           <!-- Filters -->
-          <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6">
+          <div class="venue-filter-bar">
             <div class="flex gap-4">
               <div class="relative flex-1">
                 <i class="pi pi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -436,27 +461,26 @@ const getTierCTAClass = (index: number): string => {
               :data-venue-id="venue.id"
               :class="['venue-card', { 'selected': isVenueInSelected(venue.id) }]"
             >
-              <!-- Selection Badge -->
+              <!-- Selection Badge (square, top-right, overlays image) -->
               <div class="venue-card-checkbox">
                 <i v-if="isVenueInSelected(venue.id)" class="pi pi-check"></i>
               </div>
 
+              <!-- Full-bleed image container with overlay band inside -->
               <div class="venue-card-image">
                 <img
                   :src="venue.image"
                   :alt="venue.name"
                   loading="lazy"
                   decoding="async"
-                  width="400"
-                  height="300"
+                  width="640"
+                  height="360"
                   @error="(e: Event) => ((e.target as HTMLElement).style.display = 'none')"
                 />
-              </div>
-              <div class="venue-card-content">
-                <h4 class="venue-card-title">{{ venue.name }}</h4>
-                <div class="venue-card-details">
-                  <span><i class="pi pi-map-marker"></i> {{ venue.city }}</span>
-                  <span><i class="pi pi-tag"></i> {{ venue.type }}</span>
+                <!-- Overlay band: absolutely positioned at bottom of image -->
+                <div class="venue-card-content">
+                  <h4 class="venue-card-title">{{ venue.name }}</h4>
+                  <p class="venue-card-city">{{ venue.city }}</p>
                 </div>
               </div>
             </div>
@@ -494,9 +518,11 @@ const getTierCTAClass = (index: number): string => {
             />
           </div>
         </div>
+      </Transition>
 
       <!-- STEP 2: Additional Information -->
-      <div v-if="active === 1" class="step-container">
+      <Transition :name="transitionName">
+      <div v-if="active === 1" key="step-1" class="step-container">
           <div class="mb-6">
             <h3 class="text-2xl font-semibold text-gray-900 dark:text-white">Campaign Details</h3>
             <p class="text-gray-600 dark:text-gray-300 mt-1">Tell us more about your campaign to get accurate pricing</p>
@@ -593,13 +619,21 @@ const getTierCTAClass = (index: number): string => {
             <Button icon="pi pi-arrow-right" iconPos="right" @click="calculateQuote(); active = 2" label="View Quote" size="large" />
           </div>
         </div>
+      </Transition>
 
       <!-- STEP 3: Quote -->
-      <div v-if="active === 2" class="step-container">
-          <div class="mb-6 text-center">
-            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Your Custom Quote</h3>
-            <p class="text-gray-600 dark:text-gray-300 mt-1 text-base">Choose the plan that works best for your business</p>
-            <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">All prices shown are per month + VAT</p>
+      <Transition :name="transitionName">
+      <div v-if="active === 2" key="step-2" class="step-container">
+          <!-- Geometric background decoration -->
+          <div class="pricing-decoration" aria-hidden="true">
+            <div class="pricing-circle pricing-circle-large"></div>
+            <div class="pricing-circle pricing-circle-medium"></div>
+          </div>
+
+          <div class="pricing-step-header mb-6">
+            <h3 class="text-2xl font-bold text-gray-900">Your Custom Quote</h3>
+            <p class="text-gray-500 mt-1 text-base">Choose the plan that works best for your business</p>
+            <p class="text-gray-400 text-sm mt-1">All prices shown are per month + VAT</p>
           </div>
 
           <!-- Pricing Cards -->
@@ -670,6 +704,7 @@ const getTierCTAClass = (index: number): string => {
             <Button label="Start New Quote" icon="pi pi-refresh" @click="closeWizard" size="large" />
           </div>
         </div>
+      </Transition>
     </div>
 
     <template #footer>
@@ -680,36 +715,26 @@ const getTierCTAClass = (index: number): string => {
 </template>
 
 <style scoped>
-/* Enhanced Step Indicators */
-:deep(.p-steps) {
-  padding: 1.5rem 0;
-  border-bottom: 1px solid #e5e7eb;
+/* Flat Design System: Outfit font throughout */
+:deep(.p-dialog.wizard-dialog),
+:deep(.p-dialog.wizard-dialog) *:not(.pi),
+.wizard-content,
+.wizard-content *:not(.pi) {
+  font-family: 'Outfit', sans-serif;
 }
 
-:deep(.p-steps .p-steps-item) {
-  flex: 1;
-  position: relative;
+/* Flat Design System: no shadow on dialog */
+:deep(.p-dialog) {
+  box-shadow: none !important;
+  border: 1px solid #e5e7eb;
 }
 
-:deep(.p-steps .p-steps-item.p-highlight .p-steps-number) {
-  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
-  border-color: #0d47a1;
-  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.2);
+/* Popover: remove Aura theme drop shadow — flat design requires zero shadows */
+:deep(.p-popover) {
+  box-shadow: none !important;
+  border: 1px solid #e5e7eb;
 }
 
-:deep(.p-steps .p-steps-item.p-highlight .p-steps-title) {
-  color: #0d47a1 !important;
-  font-weight: 600;
-}
-
-:deep(.p-steps .p-steps-item.p-disabled .p-steps-number) {
-  background: #e5e7eb;
-  border-color: #d1d5db;
-}
-
-:deep(.p-steps-connector.p-highlight) {
-  background: linear-gradient(90deg, #0d47a1 0%, #60a5fa 100%);
-}
 
 :deep(.p-button:not(.p-button-outlined):not(.p-button-text)) {
   background-color: #0d47a1 !important;
@@ -733,15 +758,6 @@ const getTierCTAClass = (index: number): string => {
 
 /* Dark mode overrides */
 @media (prefers-color-scheme: dark) {
-  :deep(.p-steps .p-steps-item.p-highlight .p-steps-number) {
-    background-color: #60a5fa !important;
-    border-color: #60a5fa !important;
-  }
-
-  :deep(.p-steps .p-steps-item.p-highlight .p-steps-title) {
-    color: #60a5fa !important;
-  }
-
   :deep(.p-button:not(.p-button-outlined):not(.p-button-text)) {
     background-color: #60a5fa !important;
     border-color: #60a5fa !important;
@@ -774,61 +790,173 @@ const getTierCTAClass = (index: number): string => {
   }
 }
 
-/* Transitions */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.fade-enter-from {
-  opacity: 0;
-  transform: translateX(20px);
-}
-
-.fade-leave-to {
-  opacity: 0;
-  transform: translateX(-20px);
-}
-
-.expand-enter-active,
-.expand-leave-active {
-  transition: all 0.3s ease;
-  max-height: 300px;
-  overflow: hidden;
-}
-
-.expand-enter-from,
-.expand-leave-to {
-  max-height: 0;
-  opacity: 0;
-}
-
 /* Layout */
 .wizard-content {
+  position: relative;
   padding: 1rem 0;
   min-height: 400px;
 }
 
 .step-container {
-  animation: slideIn 0.3s ease;
   padding: 0;
+  position: relative;
+  overflow: hidden;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Pricing Step Header — editorial left accent */
+.pricing-step-header {
+  border-left: 4px solid #0d47a1;
+  padding-left: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Geometric background decoration */
+.pricing-decoration {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pricing-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(13, 71, 161, 0.05);
+}
+
+.pricing-circle-large {
+  width: 450px;
+  height: 450px;
+  top: -100px;
+  right: -120px;
+}
+
+.pricing-circle-medium {
+  width: 280px;
+  height: 280px;
+  bottom: -80px;
+  left: -60px;
+}
+
+/* Custom Step Indicator */
+.wizard-step-indicator {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.wizard-step-indicator__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+/* Connector line between items */
+.wizard-step-indicator__item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: calc(50% + 20px);
+  right: calc(-50% + 20px);
+  height: 1px;
+  background: #e5e7eb;
+  z-index: 0;
+}
+
+.wizard-step-indicator__block {
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  transition: background 0.15s ease;
+}
+
+.wizard-step-indicator__block--active {
+  background: #0d47a1;
+  color: white;
+}
+
+.wizard-step-indicator__block--complete {
+  background: #0d47a1;
+  color: white;
+}
+
+.wizard-step-indicator__block--pending {
+  background: #e5e7eb;
+  color: #9ca3af;
+}
+
+.wizard-step-indicator__label {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-align: center;
+  font-family: 'Outfit', sans-serif;
+}
+
+.wizard-step-indicator__item:has(.wizard-step-indicator__block--active) .wizard-step-indicator__label {
+  color: #0d47a1;
+}
+
+/* Direction-aware step transitions — 200ms, 25px nudge + opacity */
+.step-forward-enter-active,
+.step-forward-leave-active,
+.step-back-enter-active,
+.step-back-leave-active {
+  transition: opacity 200ms ease, transform 200ms ease;
+  position: absolute;
+  width: 100%;
+}
+
+.step-forward-enter-from {
+  opacity: 0;
+  transform: translateX(25px);
+}
+.step-forward-leave-to {
+  opacity: 0;
+  transform: translateX(-25px);
+}
+.step-forward-enter-to,
+.step-forward-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.step-back-enter-from {
+  opacity: 0;
+  transform: translateX(-25px);
+}
+.step-back-leave-to {
+  opacity: 0;
+  transform: translateX(25px);
+}
+.step-back-enter-to,
+.step-back-leave-from {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* Venue Grid */
 .venue-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
   padding: 0.5rem;
   content-visibility: auto;
@@ -838,26 +966,21 @@ const getTierCTAClass = (index: number): string => {
   position: relative;
   background: white;
   border: 2px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
   cursor: pointer;
   contain: layout style paint;
   content-visibility: auto;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .venue-card:hover {
   border-color: #0d47a1;
-  box-shadow: 0 8px 16px rgba(13, 71, 161, 0.12);
-  transform: translateY(-2px);
 }
 
 .venue-card.selected {
   border-color: #0d47a1;
-  background: #f0f7ff;
-  box-shadow: 0 8px 20px rgba(13, 71, 161, 0.2);
-  transform: translateY(-2px);
+  background: #eff6ff;
 }
 
 .venue-card-checkbox {
@@ -867,15 +990,15 @@ const getTierCTAClass = (index: number): string => {
   z-index: 10;
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: 0;
   background: white;
-  border: 2px solid #d1d5db;
+  border: 2px solid #0d47a1;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   pointer-events: none;
+  opacity: 0;
 }
 
 .venue-card-checkbox i {
@@ -887,58 +1010,100 @@ const getTierCTAClass = (index: number): string => {
 .venue-card.selected .venue-card-checkbox {
   background: #0d47a1;
   border-color: #0d47a1;
-  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.4);
-  transform: scale(1.1);
+  opacity: 1;
 }
 
 .venue-card:hover .venue-card-checkbox {
-  border-color: #0d47a1;
-  box-shadow: 0 2px 8px rgba(13, 71, 161, 0.25);
+  opacity: 1;
 }
 
 .venue-card-image {
   position: relative;
   width: 100%;
   overflow: hidden;
-  background: #f3f4f6;
+  background: #0d47a1;
   contain: layout paint;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
 }
 
 .venue-card-image img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
+  display: block;
 }
 
 .venue-card-content {
-  padding: 1rem;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0d47a1;
+  padding: 1.25rem 1rem;
+  z-index: 5;
 }
 
 .venue-card-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 0.5rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.venue-card-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  font-size: 0.875rem;
-  color: #6b7280;
+.venue-card-city {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.venue-card-details span {
-  display: flex;
+/* Count Chip */
+.venue-count-chip {
+  display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
+  background: #0d47a1;
+  color: white;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0;
+}
+
+/* Filter Bar */
+.venue-filter-bar {
+  background: #f3f4f6;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0;
+}
+
+.venue-filter-bar ::v-deep(.p-inputtext) {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
+  box-shadow: none !important;
+}
+
+.venue-filter-bar ::v-deep(.p-inputtext:focus) {
+  border-color: #0d47a1;
+  box-shadow: none !important;
+}
+
+.venue-filter-bar ::v-deep(.p-select) {
+  border-radius: 0;
+  box-shadow: none !important;
+}
+
+.venue-filter-bar ::v-deep(.p-select:focus),
+.venue-filter-bar ::v-deep(.p-select.p-focus) {
+  box-shadow: none !important;
 }
 
 /* Info Form */
@@ -951,15 +1116,14 @@ const getTierCTAClass = (index: number): string => {
 .info-section {
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-  border-radius: 12px;
+  background: #f9fafb;
+  border-radius: 0;
   border: 1px solid #e5e7eb;
   transition: all 0.3s ease;
 }
 
 .info-section:hover {
   border-color: #d1d5db;
-  box-shadow: 0 2px 8px rgba(13, 71, 161, 0.05);
 }
 
 /* Enhanced Info Label */
@@ -987,13 +1151,38 @@ const getTierCTAClass = (index: number): string => {
   letter-spacing: 0.3px;
 }
 
+/* Duration selector: flat PrimeVue Select override */
+.info-section ::v-deep(.p-select) {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.info-section ::v-deep(.p-select):focus-within {
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
+
+.info-section ::v-deep(.p-select .p-select-label) {
+  background: transparent;
+  border: none;
+}
+
+.info-section ::v-deep(.p-select-overlay) {
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid #e5e7eb;
+}
+
 .discount-options {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-/* Enhanced Discount Cards */
+/* Discount Cards */
 .discount-card {
   display: flex;
   align-items: center;
@@ -1001,40 +1190,22 @@ const getTierCTAClass = (index: number): string => {
   padding: 1.25rem;
   background: white;
   border: 2px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 0;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 0.2s ease, transform 0.2s ease;
   position: relative;
-  overflow: hidden;
-}
-
-.discount-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(13, 71, 161, 0.02) 0%, transparent 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.discount-card:hover:not(.disabled)::before {
-  opacity: 1;
 }
 
 .discount-card:hover:not(.disabled) {
-  border-color: #0d47a1;
-  background: #f8fafc;
-  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.1);
-  transform: translateY(-2px);
+  background: #f3f4f6;
+  transform: scale(1.02);
+  transform-origin: center center;
 }
 
 .discount-card.disabled {
-  opacity: 0.6;
+  opacity: 0.4;
   cursor: not-allowed;
+  pointer-events: none;
   background: #f9fafb;
 }
 
@@ -1051,20 +1222,15 @@ const getTierCTAClass = (index: number): string => {
   align-items: center;
 }
 
-/* Enhanced Discount Value Badge */
+/* Discount Value Badge */
 .discount-value {
   padding: 0.375rem 1rem;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: #059669;
   color: white;
-  border-radius: 8px;
+  border-radius: 0;
   font-weight: 700;
   font-size: 0.875rem;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
-}
-
-.discount-card:hover:not(.disabled) .discount-value {
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .selected-venues-summary {
@@ -1078,9 +1244,8 @@ const getTierCTAClass = (index: number): string => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  background: #f3f4f6;
+  border-radius: 0;
   font-size: 0.875rem;
 }
 
@@ -1090,6 +1255,8 @@ const getTierCTAClass = (index: number): string => {
   grid-template-columns: repeat(4, 1fr);
   gap: 1.25rem;
   margin-bottom: 3rem;
+  position: relative;
+  z-index: 1;
 }
 
 @media (min-width: 1920px) {
@@ -1125,7 +1292,8 @@ const getTierCTAClass = (index: number): string => {
   position: relative;
   background: white;
   border: 2px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 0;
+  box-shadow: none;
   padding: 1.25rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
@@ -1135,54 +1303,38 @@ const getTierCTAClass = (index: number): string => {
 
 /* Starter Tier - Baseline */
 .pricing-card.starter {
-  opacity: 0.95;
+  background: white;
+  border: 1px solid #e5e7eb;
 }
 
 .pricing-card.starter:hover {
-  border-color: #bfdbfe;
-  box-shadow: 0 4px 6px rgba(13, 71, 161, 0.08);
-  transform: translateY(-2px);
+  transform: scale(1.02);
 }
 
 /* Optimal Tier - Slight Elevation */
 .pricing-card.optimal {
-  transform: scale(1.01);
-  box-shadow: 0 2px 8px rgba(13, 71, 161, 0.08);
+  background: #f8faff;
+  border: 1px solid #0d47a1;
 }
 
 .pricing-card.optimal:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 8px 16px rgba(13, 71, 161, 0.12);
-  transform: scale(1.01) translateY(-2px);
+  transform: scale(1.02);
 }
 
-/* Featured Tier - Enhanced */
+/* Featured Tier - Solid Navy Block */
 .pricing-card.featured {
-  transform: scale(1.03);
-  border-color: #0d47a1;
-  border-width: 2px;
-  box-shadow: 0 8px 24px rgba(13, 71, 161, 0.15);
-  background: linear-gradient(135deg, rgba(13, 71, 161, 0.02) 0%, rgba(13, 71, 161, 0.01) 100%);
+  background: #0d47a1;
+  border: none;
 }
 
-.pricing-card.featured:hover {
-  border-color: #0d47a1;
-  box-shadow: 0 16px 40px rgba(13, 71, 161, 0.2);
-  transform: scale(1.03) translateY(-3px);
-}
-
-/* Premium Tier - Highest Prominence */
+/* Premium Tier - Tinted Block */
 .pricing-card.premium {
-  transform: scale(1.04);
+  background: #eef2ff;
   border: 2px solid #0d47a1;
-  box-shadow: 0 12px 32px rgba(13, 71, 161, 0.2);
-  background: linear-gradient(135deg, rgba(13, 71, 161, 0.04) 0%, rgba(13, 71, 161, 0.02) 100%);
 }
 
 .pricing-card.premium:hover {
-  border-color: #0d47a1;
-  box-shadow: 0 20px 48px rgba(13, 71, 161, 0.25);
-  transform: scale(1.04) translateY(-4px);
+  transform: scale(1.02);
 }
 
 /* Tier Badge Styling */
@@ -1192,7 +1344,7 @@ const getTierCTAClass = (index: number): string => {
   left: 50%;
   transform: translateX(-50%);
   padding: 0.375rem 1.25rem;
-  border-radius: 20px;
+  border-radius: 0;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1202,14 +1354,13 @@ const getTierCTAClass = (index: number): string => {
 }
 
 .tier-badge-2 {
-  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
-  color: white;
+  background: #FFD700;
+  color: #0d47a1;
 }
 
 .tier-badge-3 {
-  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+  background: #0d47a1;
   color: white;
-  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.25);
 }
 
 .pricing-header {
@@ -1230,19 +1381,13 @@ const getTierCTAClass = (index: number): string => {
 }
 
 .pricing-card.featured .pricing-name {
+  color: white;
   font-size: 1.625rem;
-  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .pricing-card.premium .pricing-name {
+  color: #0d47a1;
   font-size: 1.75rem;
-  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .pricing-description {
@@ -1255,20 +1400,8 @@ const getTierCTAClass = (index: number): string => {
 /* Pricing Price Container */
 .pricing-price-container {
   margin-bottom: 1rem;
-  padding: 0.875rem;
-  background: rgba(13, 71, 161, 0.02);
-  border-radius: 8px;
+  background: transparent;
   text-align: center;
-}
-
-.pricing-card.optimal .pricing-price-container {
-  background: rgba(96, 165, 250, 0.05);
-}
-
-.pricing-card.featured .pricing-price-container,
-.pricing-card.premium .pricing-price-container {
-  background: linear-gradient(135deg, rgba(13, 71, 161, 0.08) 0%, rgba(13, 71, 161, 0.04) 100%);
-  border: 1px solid rgba(13, 71, 161, 0.1);
 }
 
 .pricing-price {
@@ -1285,23 +1418,23 @@ const getTierCTAClass = (index: number): string => {
 }
 
 .amount {
-  font-size: 2.25rem;
+  font-size: 3rem;
   font-weight: 800;
-  color: #0d47a1;
+  color: #111827;
   line-height: 1;
   margin: 0 0.25rem;
 }
 
-.pricing-card.optimal .amount {
-  font-size: 2.5rem;
-}
-
 .pricing-card.featured .amount {
-  font-size: 2.75rem;
+  color: white;
 }
 
-.pricing-card.premium .amount {
-  font-size: 3rem;
+.pricing-card.featured .currency {
+  color: white;
+}
+
+.pricing-card.featured .pricing-description {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 
@@ -1338,7 +1471,11 @@ const getTierCTAClass = (index: number): string => {
 }
 
 .pricing-card.featured .feature-item i {
-  color: #0d47a1;
+  color: white;
+}
+
+.pricing-card.featured .feature-item {
+  color: white;
 }
 
 .pricing-card.premium .feature-item i {
@@ -1349,7 +1486,7 @@ const getTierCTAClass = (index: number): string => {
 /* Highlight Feature Styling per Tier */
 .feature-item.highlight {
   padding: 0.5rem;
-  border-radius: 6px;
+  border-radius: 0;
   font-weight: 600;
   border-left: 3px solid transparent;
   font-size: 0.8rem;
@@ -1366,13 +1503,13 @@ const getTierCTAClass = (index: number): string => {
 }
 
 .pricing-card.featured .feature-item.highlight {
-  background: linear-gradient(90deg, rgba(13, 71, 161, 0.1) 0%, rgba(13, 71, 161, 0.05) 100%);
-  border-left-color: #0d47a1;
+  background: rgba(255, 255, 255, 0.15);
+  border-left-color: white;
   font-weight: 600;
 }
 
 .pricing-card.premium .feature-item.highlight {
-  background: linear-gradient(90deg, rgba(13, 71, 161, 0.15) 0%, rgba(13, 71, 161, 0.08) 100%);
+  background: #dde8ff;
   border-left-color: #0d47a1;
   font-weight: 700;
 }
@@ -1396,56 +1533,36 @@ const getTierCTAClass = (index: number): string => {
 .pricing-cta-button:hover {
   background: #1565c0;
   border-color: #1565c0;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.3);
+  transform: none;
 }
 
-/* Featured CTA - Solid Navy */
+/* Featured CTA - White with Navy Text */
 .pricing-cta-button.featured-cta,
 .p-button.pricing-cta-button.featured-cta:not(.p-button-outlined):not(.p-button-text) {
-  background: #0d47a1 !important;
-  color: white !important;
-  border-color: #0d47a1 !important;
+  background: white !important;
+  color: #0d47a1 !important;
+  border: 2px solid white !important;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.2);
+  border-radius: 0;
 }
 
 .pricing-cta-button.featured-cta:hover,
 .p-button.pricing-cta-button.featured-cta:hover:not(.p-button-outlined):not(.p-button-text) {
-  background: #1565c0 !important;
-  border-color: #1565c0 !important;
-  box-shadow: 0 8px 20px rgba(13, 71, 161, 0.35);
-  transform: translateY(-3px);
-}
-
-/* Premium CTA - Gradient */
-.pricing-cta-button.premium-cta,
-.p-button.pricing-cta-button.premium-cta:not(.p-button-outlined):not(.p-button-text) {
-  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%) !important;
-  color: white !important;
-  border: 2px solid transparent !important;
-  font-weight: 700;
-  box-shadow: 0 8px 20px rgba(13, 71, 161, 0.3);
-  letter-spacing: 0.5px;
-}
-
-.pricing-cta-button.premium-cta:hover,
-.p-button.pricing-cta-button.premium-cta:hover:not(.p-button-outlined):not(.p-button-text) {
-  background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%) !important;
-  box-shadow: 0 12px 28px rgba(13, 71, 161, 0.4);
-  transform: translateY(-4px);
+  background: #f0f4ff !important;
+  border-color: #f0f4ff !important;
 }
 
 /* Call to Action Section */
 .cta-section {
   margin: 2rem auto 1.5rem;
-  max-width: 700px;
+  position: relative;
+  z-index: 1;
 }
 
 .cta-content {
-  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+  background: #111827;
   padding: 2.5rem;
-  border-radius: 16px;
+  border-radius: 0;
   text-align: center;
   color: white;
 }
@@ -1474,7 +1591,7 @@ const getTierCTAClass = (index: number): string => {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.5rem;
-  border-radius: 8px;
+  border-radius: 0;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s ease;
@@ -1486,40 +1603,26 @@ const getTierCTAClass = (index: number): string => {
 }
 
 .cta-button-primary {
-  background: white;
-  color: #0d47a1;
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  border-radius: 0;
 }
 
 .cta-button-primary:hover {
-  background: #f0f7ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .cta-button-secondary {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: white;
+  color: #111827;
   border: 2px solid white;
+  border-radius: 0;
 }
 
 .cta-button-secondary:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-}
-
-/* Save Quote Section */
-.save-quote-section {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: #f9fafb;
-  border-radius: 12px;
-}
-
-.save-quote-form {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
+  background: #f3f4f6;
+  border-color: #f3f4f6;
 }
 
 .form-label {
@@ -1536,18 +1639,15 @@ const getTierCTAClass = (index: number): string => {
   .venue-card {
     background: #1f2937;
     border-color: #374151;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 
   .venue-card:hover {
     border-color: #60a5fa;
-    box-shadow: 0 8px 16px rgba(96, 165, 250, 0.2);
   }
 
   .venue-card.selected {
     background: #1e3a5f;
     border-color: #60a5fa;
-    box-shadow: 0 8px 20px rgba(96, 165, 250, 0.3);
   }
 
   .venue-card-checkbox {
@@ -1558,7 +1658,6 @@ const getTierCTAClass = (index: number): string => {
   .venue-card.selected .venue-card-checkbox {
     background: #60a5fa;
     border-color: #60a5fa;
-    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.4);
   }
 
   .venue-card:hover .venue-card-checkbox {
@@ -1587,206 +1686,67 @@ const getTierCTAClass = (index: number): string => {
     color: #9ca3af;
   }
 
-  /* Discount Cards Dark Mode */
-  .discount-card {
-    background: #111827;
-    border-color: #374151;
-  }
-
-  .discount-card:hover:not(.disabled) {
-    border-color: #60a5fa;
-    background: #1e3a5f;
-    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.15);
-  }
-
-  .discount-card.disabled {
-    background: #1f2937;
-  }
-
-  .discount-title {
-    color: #f9fafb;
-  }
-
-  .discount-value {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-  }
-
-  .discount-card:hover:not(.disabled) .discount-value {
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-  }
-
-  /* Selected Venues */
-  .selected-venue-chip {
-    background: #111827;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-
-  /* Pricing Cards Dark Mode */
-  .pricing-card {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .pricing-card.starter {
-    opacity: 0.95;
-  }
-
-  .pricing-card.optimal {
-    background: #1f2937;
-    border-color: #4b5563;
-    box-shadow: 0 2px 8px rgba(96, 165, 250, 0.1);
-  }
-
-  .pricing-card.featured {
-    background: linear-gradient(135deg, rgba(96, 165, 250, 0.08) 0%, rgba(96, 165, 250, 0.04) 100%);
-    border-color: #60a5fa;
-    box-shadow: 0 8px 24px rgba(96, 165, 250, 0.15);
-  }
-
-  .pricing-card.premium {
-    background: linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(96, 165, 250, 0.05) 100%);
-    border-color: #60a5fa;
-    box-shadow: 0 12px 32px rgba(96, 165, 250, 0.2);
-  }
-
-  .pricing-card.featured .pricing-name,
-  .pricing-card.premium .pricing-name {
-    background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .pricing-card.featured .amount,
-  .pricing-card.premium .amount {
-    color: #60a5fa;
-  }
-
-  .pricing-name {
-    color: #f9fafb;
-  }
-
-  .pricing-description {
-    color: #9ca3af;
-  }
-
-  .currency {
-    color: #d1d5db;
-  }
-
-  .amount {
-    color: #60a5fa;
-  }
-
-  .period {
-    color: #9ca3af;
-  }
-
-
-  .feature-item {
-    color: #d1d5db;
-  }
-
-  /* Price Container Dark Mode */
-  .pricing-price-container {
-    background: rgba(96, 165, 250, 0.08);
-  }
-
-  .pricing-card.featured .pricing-price-container,
-  .pricing-card.premium .pricing-price-container {
-    background: linear-gradient(135deg, rgba(96, 165, 250, 0.12) 0%, rgba(96, 165, 250, 0.06) 100%);
-    border-color: rgba(96, 165, 250, 0.15);
-  }
-
-  /* Feature highlights dark mode */
-  .pricing-card.starter .feature-item.highlight {
-    background: #374151;
-    border-left-color: #6b7280;
-  }
-
-  .pricing-card.optimal .feature-item.highlight {
-    background: #1e3a5f;
-    border-left-color: #60a5fa;
-  }
-
-  .pricing-card.featured .feature-item.highlight,
-  .pricing-card.premium .feature-item.highlight {
-    background: linear-gradient(90deg, rgba(96, 165, 250, 0.15) 0%, rgba(96, 165, 250, 0.08) 100%);
-    border-left-color: #60a5fa;
-  }
-
-  /* Save Quote Section */
-  .save-quote-section {
-    background: #1f2937;
-    border: 1px solid #374151;
-  }
-
-  .save-quote-form {
-    background: #111827;
-    border: 1px solid #374151;
-  }
-
   .form-label {
     color: #d1d5db;
   }
 
-  /* Pricing CTA Buttons Dark Mode */
-  .pricing-cta-button {
-    background: #60a5fa;
-    border-color: #60a5fa;
+}
+
+/* ===========================
+   Mobile: Full-screen wizard
+   =========================== */
+@media (max-width: 768px) {
+  /* Hide the backdrop mask — dialog IS the full screen */
+  ::v-deep(.p-dialog-mask) {
+    background: transparent !important;
+    backdrop-filter: none !important;
   }
 
-  .pricing-cta-button:hover {
-    background: #3b82f6;
-    border-color: #3b82f6;
+  /* Make the dialog fill the full viewport */
+  .wizard-dialog ::v-deep(.p-dialog) {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: 100vw !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    position: fixed !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
-  .pricing-cta-button.featured-cta,
-  .p-button.pricing-cta-button.featured-cta:not(.p-button-outlined):not(.p-button-text) {
-    background: #60a5fa !important;
-    color: white !important;
-    border-color: #60a5fa !important;
-    font-weight: 700;
-    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
+  /* Header stays at top, does not scroll */
+  .wizard-dialog ::v-deep(.p-dialog-header) {
+    flex-shrink: 0;
+    padding: 1rem 1rem 0.75rem;
+    border-radius: 0;
   }
 
-  .pricing-cta-button.featured-cta:hover,
-  .p-button.pricing-cta-button.featured-cta:hover:not(.p-button-outlined):not(.p-button-text) {
-    background: #3b82f6 !important;
-    border-color: #3b82f6 !important;
-    box-shadow: 0 8px 20px rgba(96, 165, 250, 0.35);
+  /* Content area fills remaining height and scrolls */
+  .wizard-dialog ::v-deep(.p-dialog-content) {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 0.75rem 1rem;
+    max-height: none !important;
   }
 
-  .pricing-cta-button.premium-cta,
-  .p-button.pricing-cta-button.premium-cta:not(.p-button-outlined):not(.p-button-text) {
-    background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%) !important;
-    color: white !important;
-    border: 2px solid transparent !important;
-    font-weight: 700;
-    box-shadow: 0 8px 20px rgba(96, 165, 250, 0.3);
+  /* Tighten up wizard content padding on mobile */
+  .wizard-content {
+    padding: 0;
   }
 
-  .pricing-cta-button.premium-cta:hover,
-  .p-button.pricing-cta-button.premium-cta:hover:not(.p-button-outlined):not(.p-button-text) {
-    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%) !important;
-    box-shadow: 0 12px 28px rgba(96, 165, 250, 0.4);
+  /* Reduce heading size on mobile */
+  .wizard-dialog ::v-deep(.p-dialog-header) h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
   }
 
-  /* CTA Section Dark Mode */
-  .cta-content {
-    background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
-  }
-
-  .cta-button-primary {
-    background: white;
-    color: #1976d2;
-  }
-
-  .cta-button-primary:hover {
-    background: #e3f2fd;
+  /* Footer stays at bottom of viewport — does not compress scrollable content area */
+  .wizard-dialog ::v-deep(.p-dialog-footer) {
+    flex-shrink: 0;
   }
 }
 </style>

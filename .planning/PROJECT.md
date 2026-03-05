@@ -1,15 +1,8 @@
 # MapApp — Blue Billboard Venue Map
 
-## Current Milestone: v1.1 Quote Wizard Redesign
+## Current State: v1.1 Shipped
 
-**Goal:** Redesign the quote wizard with a bold flat design system that showcases digital screens dramatically and works seamlessly on all devices.
-
-**Target features:**
-- Full flat design redesign of all 3 wizard steps (venue selection, campaign details, quote/pricing)
-- Full-bleed hero venue cards — images fill the card, name/city overlaid
-- Full-screen mobile takeover — wizard fills viewport on small screens
-- Outfit font, zero shadows, color block sections, bold typography throughout
-- Responsive layout at all breakpoints (mobile-first)
+Shipped v1.1 on 2026-03-05. Quote wizard fully redesigned with flat design system across all 3 steps. Next milestone TBD.
 
 ## What This Is
 
@@ -37,14 +30,15 @@ The map must feel as premium as the venues it displays — first impressions mat
 - ✓ Pin hover scale animation (scale 1.12, 150ms) — v1.0
 - ✓ Pins render cleanly in both light and dark map modes — v1.0
 - ✓ Level-color bindings removed from marker rendering — v1.0
+- ✓ Quote wizard redesigned with flat design system — v1.1
+- ✓ Full-bleed hero venue cards in wizard Step 1 — v1.1
+- ✓ Wizard mobile full-screen takeover (100dvh, no chrome) — v1.1
+- ✓ Outfit font applied throughout wizard — v1.1
+- ✓ Zero box shadows, no gradients, flat color blocks across all 3 wizard steps — v1.1
 
 ### Active
 
-- [ ] Quote wizard redesigned with flat design system — v1.1
-- [ ] Full-bleed venue card images in wizard venue selection step — v1.1
-- [ ] Wizard fully responsive with mobile full-screen takeover — v1.1
-- [ ] Outfit font applied throughout wizard — v1.1
-- [ ] Zero box shadows, no gradients on components, flat color blocks — v1.1
+(No active requirements — v1.1 shipped. Define requirements for next milestone with `/gsd:new-milestone`)
 
 ### Deferred (previously Active)
 
@@ -63,11 +57,12 @@ The map must feel as premium as the venues it displays — first impressions mat
 
 ## Context
 
-Shipped v1.0 on 2026-03-01. 2,708 LOC (Vue/TS/CSS). Tech stack: Vue 3 + Composition API, Leaflet, PrimeVue (unstyled), Tailwind CSS, Stadia Maps (Alidade Smooth).
+Shipped v1.1 on 2026-03-05. 2,438 LOC (Vue/TS/CSS). Tech stack: Vue 3 + Composition API, Leaflet, PrimeVue (unstyled + Aura theme), Tailwind CSS, Stadia Maps (Alidade Smooth), Outfit (Google Fonts).
 
-Two known tech debt items from v1.0:
-- `transform-origin: center center` (actual) vs `center bottom` (intended) — pin scales from midpoint not tip; cosmetic only, hover confirmed correct
-- `levelColour` imported but unused in App.vue — intentional per CODE-02 (retained for future consumers), dead import tree-shaken from bundle
+Known tech debt:
+- `transform-origin: center center` (actual) vs `center bottom` (intended) — pin scales from midpoint not tip; cosmetic only
+- `levelColour` imported but unused in App.vue — retained for future consumers, tree-shaken from bundle
+- Human visual QA pending for Phase 5 (discount card hover, badge colors, mobile viewport) and Phase 7 (Step 2 info panel, Step 3 highlight rows) — automated checks passed, user approved during execution
 
 ## Constraints
 
@@ -87,6 +82,12 @@ Two known tech debt items from v1.0:
 | Scale transform on `.custom-div-icon` wrapper | `.marker-pin` already has `rotate(-45deg)` — combining transforms distorts shape | ✓ Good — correct element choice |
 | Both tile layers instantiated once in onMounted | Prevents memory waste and flicker on theme toggle | ✓ Good — clean implementation |
 | Variant comparison via URL param (`?variant=b`) | Temporary dev toggle — no UI overhead, stripped post-approval | ✓ Good — zero variant debt shipped |
+| Wizard brand color #0d47a1 (not design system #3B82F6) | Brand consistency with map pins and app chrome | ✓ Good — shipped v1.1 |
+| CSS-only mobile full-screen (no template changes) | Keeps Vue template clean; 100dvh for iOS Safari dynamic viewport | ✓ Good — zero JS overhead |
+| Flat design is light-mode only | Sales presentation context; complexity of dark mode overrides not worth it | ✓ Good — dark mode variants removed cleanly |
+| No mode='out-in' on step transitions | Simultaneous enter+leave required for snappy feel; position:absolute provides stacking | ✓ Good — 200ms transitions feel crisp |
+| Gold (#FFD700) Most Popular badge (not white) | White was invisible against navy card top edge | ✓ Good — contrast maintained |
+| `:deep(.p-popover)` scoped override pattern | Mirrors `:deep(.p-dialog)` — consistent flat shadow control across PrimeVue overlays | ✓ Good — shipped v1.1 Phase 8 |
 
 ---
-*Last updated: 2026-03-03 after v1.1 milestone started*
+*Last updated: 2026-03-05 after v1.1 milestone shipped*
