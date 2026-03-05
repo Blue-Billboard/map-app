@@ -12,8 +12,8 @@ cd dist
 # place .nojekyll to bypass Jekyll processing
 echo > .nojekyll
 
-# if you are deploying to a custom domain
-# echo 'www.example.com' > CNAME
+# custom domain
+echo 'map.bluebillboard.co.uk' > CNAME
 
 git init
 git checkout -B main
@@ -24,6 +24,6 @@ git commit -m 'deploy'
 # git push -f git@github.com:<USERNAME>/<USERNAME>.github.io.git main
 
 # if you are deploying to https://<USERNAME>.github.io/<REPO>≈
-git push -f git@github.com:justin-nodeboy/map-app.git main:gh-pages
+git push -f git@github.com:Blue-Billboard/map-app.git main:gh-pages
 
 cd -
