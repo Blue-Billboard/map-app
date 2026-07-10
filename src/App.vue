@@ -13,7 +13,7 @@ import '@maplibre/maplibre-gl-leaflet' // adds L.maplibreGL (GPU vector base lay
 import { T } from '@/bolt/tokens'
 import { buildVenues, networkOf, loadAudience, fmtK, coverBg, type VenueVM } from '@/bolt/data'
 import type { QuoteData } from '@/bolt/quote'
-import BoltMark from '@/bolt/BoltMark.vue'
+import BlueBillboardMark from '@/bolt/BlueBillboardMark.vue'
 import Icon from '@/bolt/Icon.vue'
 import HoverPreview from '@/bolt/HoverPreview.vue'
 import VenueDetailPanel from '@/bolt/VenueDetailPanel.vue'
@@ -295,7 +295,7 @@ const glassPill = {
     <Transition name="bolt-loader-fade">
       <div v-if="loading" class="bolt-loader">
         <div class="bolt-loader__mark">
-          <BoltMark :size="60" :color="T.ink" cut-color="#FFF" :radius="16" />
+          <BlueBillboardMark :size="60" />
         </div>
         <div class="bolt-loader__track"></div>
         <div class="bolt-loader__label">Charging the network</div>
@@ -305,8 +305,8 @@ const glassPill = {
     <!-- top-left: brand + search -->
     <div v-if="!isStripped" :style="{ position: 'absolute', left: '22px', top: '22px', display: 'flex', alignItems: 'center', gap: '12px', zIndex: 60 }">
       <div :style="glassPill">
-        <BoltMark :size="22" :color="T.ink" cut-color="#FFF" />
-        <span :style="{ fontFamily: T.display, fontWeight: 800, fontSize: '16px', letterSpacing: '-0.04em', color: T.ink }">BOLT</span>
+        <BlueBillboardMark :size="22" />
+        <span :style="{ fontFamily: T.display, fontWeight: 800, fontSize: '15px', letterSpacing: '-0.03em', color: T.ink }">Blue Billboard</span>
       </div>
       <div :style="{ position: 'relative' }">
         <label :style="{ ...glassPill, padding: '9px 15px', width: '260px', color: T.inkDim, fontSize: '13px', cursor: 'text' }">

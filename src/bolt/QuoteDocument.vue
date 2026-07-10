@@ -7,7 +7,7 @@ import { SALES_EMAIL, type QuoteData } from './quote'
 import Icon from './Icon.vue'
 import Chip from './Chip.vue'
 import BoltButton from './BoltButton.vue'
-import BoltLockup from './BoltLockup.vue'
+import BlueBillboardLockup from './BlueBillboardLockup.vue'
 
 const props = defineProps<{ data: QuoteData }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
@@ -42,7 +42,7 @@ const venueStats = (v: VenueVM) => {
       <!-- letterhead -->
       <div :style="{ background: T.nav, color: '#FFF', padding: '34px 48px', position: 'relative' }">
         <div :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }">
-          <BoltLockup :size="30" color="#FFF" :cut-color="T.nav" />
+          <BlueBillboardLockup :size="30" color="#FFF" mark-color="#FFF" />
           <div :style="{ textAlign: 'right', fontFamily: T.mono, fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }">
             <div>REF · {{ data.ref }}</div>
             <div>{{ data.date }}</div>
