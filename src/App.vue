@@ -1,609 +1,426 @@
 <script setup lang="ts">
-import {ref, onMounted, computed} from "vue";
-import L from 'leaflet';
-import 'leaflet-draw';
-import WizardView from "./dialogs/wizard/WizardView.vue";
-import {useVenueList} from "@/composables/useVenueList";
+/* BOLT Venue Map — the live Blue Billboard network on a warm, BOLT-tinted
+   Leaflet map. Photo-teardrop pins, animated hover preview, a right-docked
+   venue detail panel with audience/footfall data-viz, a floating plan bar, and
+   the BOLT quote builder + branded quote document.
+   Implements the "BOLT Venue Map" design (map-ideas/prototype.jsx). */
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import L from 'leaflet'
+import 'leaflet.markercluster'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'maplibre-gl/dist/maplibre-gl.css'
+import '@maplibre/maplibre-gl-leaflet' // adds L.maplibreGL (GPU vector base layer)
+import { T } from '@/bolt/tokens'
+import { buildVenues, networkOf, loadAudience, fmtK, coverBg, type VenueVM } from '@/bolt/data'
+import type { QuoteData } from '@/bolt/quote'
+import BoltMark from '@/bolt/BoltMark.vue'
+import Icon from '@/bolt/Icon.vue'
+import HoverPreview from '@/bolt/HoverPreview.vue'
+import VenueDetailPanel from '@/bolt/VenueDetailPanel.vue'
+import PlanBar from '@/bolt/PlanBar.vue'
+import QuoteBuilder from '@/bolt/QuoteBuilder.vue'
+import QuoteDocument from '@/bolt/QuoteDocument.vue'
 
-const open = ref(false);
-const wizardOpen = ref(false);
-const viewAllOpen = ref(false);
-const cameFromViewAll = ref(false);
-const map = ref();
-const markerGroup = ref();
-const locationData = ref<any[]>([]);
-const displayGroups = ref<any[]>([]);
-const meta = ref();
-const {levelColour} = useVenueList(); // retained: used by other composable consumers (CODE-02)
-const isStripped = ref(false);
-const showQuoteButton = ref(false);
+// ─────────────── state ───────────────
+const venues = ref<VenueVM[]>([])
+const hoverId = ref<string | null>(null)
+const selId = ref<string | null>(null)
+const planIds = ref<string[]>([])
+const quoteOpen = ref(false)
+const docData = ref<QuoteData | null>(null)
+const weeks = ref(4)
+const isStripped = ref(false)
+const showQuote = ref(false) // gate the plan bar + quote builder behind ?showQuote=true
+const loading = ref(true) // BOLT "charging" overlay until the pins are on the map
 
-let lat = 50.9885170505752;
-let lng = -0.1969095226736214;
-let zoomLevel = 9;
+const searchQ = ref('')
+const searchFocused = ref(false)
+
+const mapTick = ref(0) // bumped on map move/zoom to reproject the hover overlay
+// cluster hover: the venues under the hovered cluster + its anchor latlng
+const clusterHover = ref<{ venues: VenueVM[]; lat: number; lng: number } | null>(null)
+
+let map: L.Map | undefined
+let markerGroup: L.MarkerClusterGroup | undefined
+const markers = new Map<string, L.Marker>()
+
+// ─────────────── derived ───────────────
+const sel = computed(() => venues.value.find(v => v.id === selId.value) || null)
+const plan = computed(() =>
+  planIds.value.map(id => venues.value.find(v => v.id === id)).filter(Boolean) as VenueVM[],
+)
+const hoverV = computed(() =>
+  hoverId.value && hoverId.value !== selId.value
+    ? venues.value.find(v => v.id === hoverId.value) || null
+    : null,
+)
+const network = computed(() => networkOf(venues.value))
+const inPlan = computed(() => !!sel.value && planIds.value.includes(sel.value.id))
+
+const hoverPos = computed(() => {
+  void mapTick.value // reactive dependency: reproject on pan/zoom
+  const v = hoverV.value
+  if (!v || !map) return null
+  const p = map.latLngToContainerPoint([v.lat, v.lng])
+  // flip the preview below the pin when there isn't room to pop it above
+  return { left: `${p.x}px`, top: `${p.y}px`, above: p.y > 330 }
+})
+
+const clusterHoverPos = computed(() => {
+  void mapTick.value // reproject the roster on pan
+  const c = clusterHover.value
+  if (!c || !map) return null
+  const p = map.latLngToContainerPoint([c.lat, c.lng])
+  return { left: `${p.x}px`, top: `${p.y}px`, above: p.y > 300 }
+})
+
+const searchResults = computed(() => {
+  const q = searchQ.value.trim().toLowerCase()
+  if (!q) return []
+  return venues.value
+    .filter(v => v.name.toLowerCase().includes(q) || v.city.toLowerCase().includes(q) || v.type.toLowerCase().includes(q))
+    .slice(0, 6)
+})
+
+// ─────────────── plan / selection ───────────────
+function selectVenue(id: string) {
+  selId.value = id
+  hoverId.value = null
+}
+function togglePlan(id: string) {
+  const i = planIds.value.indexOf(id)
+  if (i >= 0) planIds.value.splice(i, 1)
+  else planIds.value.push(id)
+}
+function onQuote() {
+  if (sel.value && !planIds.value.includes(sel.value.id)) togglePlan(sel.value.id)
+  quoteOpen.value = true
+}
+function pickSearch(v: VenueVM) {
+  searchQ.value = ''
+  searchFocused.value = false
+  const m = markers.get(v.id)
+  if (m && markerGroup) {
+    // expand any cluster the pin is inside (zoom in / spiderfy) so it's visible,
+    // then select once it's on the map so the active ring can apply
+    markerGroup.zoomToShowLayer(m, () => selectVenue(v.id))
+  } else {
+    // atomic center+zoom in one call — panTo() then setZoom() races (the pan is
+    // animated, so setZoom re-centers on the mid-flight location)
+    map?.setView([v.lat, v.lng], Math.max(map.getZoom(), 13), { animate: true })
+    selectVenue(v.id)
+  }
+}
+// delay so a result's mousedown can register before the list closes
+function onSearchBlur() {
+  setTimeout(() => { searchFocused.value = false }, 150)
+}
+
+// close the quote dialog if the plan is emptied out from under it
+watch(() => plan.value.length, n => { if (n === 0) quoteOpen.value = false })
+
+// reflect selection as the active pin
+watch(selId, (nv, ov) => {
+  if (ov) {
+    const m = markers.get(ov)
+    m?.getElement()?.classList.remove('is-active')
+    m?.setZIndexOffset(0)
+  }
+  if (nv) {
+    const m = markers.get(nv)
+    m?.getElement()?.classList.add('is-active')
+    m?.setZIndexOffset(1000)
+  }
+})
+
+// ─────────────── pins ───────────────
+function pinHtml(v: VenueVM) {
+  const dot = v.hot ? '<span class="bolt-pin__dot"></span>' : ''
+  const bg = v.img ? `background-image:url('${v.img.replace(/'/g, "%27")}')` : ''
+  return `<div class="bolt-pin"><span class="bolt-pin__bubble" style="${bg}"></span><span class="bolt-pin__stem"></span>${dot}</div>`
+}
+function addMarker(v: VenueVM) {
+  const icon = L.divIcon({
+    className: 'bolt-pin-icon' + (v.hot ? ' is-hot' : ''),
+    html: pinHtml(v),
+    iconSize: [64, 84],
+    iconAnchor: [32, 84],
+  })
+  const m = L.marker([v.lat, v.lng], { icon, riseOnHover: true })
+  ;(m as any).bbHot = v.hot   // read back by clusterIcon to tint clusters with a top-reach venue
+  ;(m as any).bbId = v.id     // reverse lookup for the cluster-hover roster
+  m.on('click', () => selectVenue(v.id))
+  m.on('mouseover', () => { hoverId.value = v.id; loadAudience(v) })
+  m.on('mouseout', () => { if (hoverId.value === v.id) hoverId.value = null })
+  markerGroup!.addLayer(m)
+  markers.set(v.id, m)
+}
+
+// BOLT-styled cluster badge: an ink disc with the venue count, mint-ringed when
+// the cluster contains a "top reach" venue. Size steps up with the count.
+function clusterIcon(cluster: L.MarkerCluster): L.DivIcon {
+  const count = cluster.getChildCount()
+  const hot = cluster.getAllChildMarkers().some(m => (m as any).bbHot)
+  const size = count < 10 ? 44 : count < 25 ? 52 : 60
+  const html =
+    `<div class="bolt-cluster${hot ? ' is-hot' : ''}" style="width:${size}px;height:${size}px">` +
+      `<span class="bolt-cluster__count">${count}</span>` +
+    `</div>`
+  return L.divIcon({ html, className: 'bolt-cluster-icon', iconSize: L.point(size, size) })
+}
+
+// ─────────────── map controls ───────────────
+const zoomIn = () => map?.zoomIn()
+const zoomOut = () => map?.zoomOut()
+
+// ─────────────── lifecycle ───────────────
+const STADIA_API_KEY = 'f5f0fc7d-849a-4c4f-86d3-22e9a7948ad4'
+// Stadia's alidade_smooth as a MapLibre GL VECTOR style — GPU-rendered, crisp at
+// any DPR, and no per-zoom raster tile-grid fetch (the cause of the slow redraw).
+const STADIA_VECTOR_STYLE = `https://tiles.stadiamaps.com/styles/alidade_smooth.json?api_key=${STADIA_API_KEY}`
+const TILE_ATTRIBUTION =
+  '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
 
 onMounted(async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('stripped') === 'true') {
-    isStripped.value = true;
+  const t0 = performance.now()
+  const p = new URLSearchParams(window.location.search)
+  isStripped.value = p.get('stripped') === 'true'
+  showQuote.value = p.get('showQuote') === 'true'
+
+  let lat = 50.9885170505752
+  let lng = -0.1969095226736214
+  let zoom = 9
+  let hasFocus = false
+  if (p.get('lat') && p.get('lng')) {
+    lat = parseFloat(p.get('lat')!)
+    lng = parseFloat(p.get('lng')!)
+    zoom = 14
+    hasFocus = true
   }
-  if (urlParams.get('showQuote') === 'true') {
-    showQuoteButton.value = true;
+
+  // maxZoom must be on the map (not just the tile layer) — markercluster reads
+  // map.getMaxZoom() at init, before the tile layer is added, and throws without it
+  map = L.map('map', { zoomControl: false, maxZoom: 20 }).setView([lat, lng], zoom)
+  markerGroup = L.markerClusterGroup({
+    showCoverageOnHover: false,   // the hull polygon fights the warm map aesthetic
+    spiderfyOnMaxZoom: true,      // fan out co-located venues so each is pickable
+    maxClusterRadius: 55,         // only genuinely-close pins merge
+    iconCreateFunction: clusterIcon,
+  }).addTo(map)
+  ;(L as any).maplibreGL({
+    style: STADIA_VECTOR_STYLE,
+    attribution: TILE_ATTRIBUTION,
+    // Stadia injects the api_key into the tile-source URL only — NOT the glyphs
+    // or sprite URLs. From a non-allowlisted origin those 503, and MapLibre
+    // retries them on every move (the "lots of requests" churn). Append the key
+    // to every Stadia request so glyphs/sprite load once and cache (6h max-age).
+    transformRequest: (url: string) =>
+      url.includes('stadiamaps.com') && !url.includes('api_key=')
+        ? { url: `${url}${url.includes('?') ? '&' : '?'}api_key=${STADIA_API_KEY}` }
+        : { url },
+    refreshExpiredTiles: false, // don't silently re-fetch tiles when the 6h cache expires mid-session
+    fadeDuration: 0,            // no label cross-fade — snappier and less render churn
+  }).addTo(map)
+  // Only the hover overlays need per-frame reprojection. During a plain pan/zoom
+  // with nothing hovered, skip the mapTick bump entirely — it would otherwise
+  // re-run the whole App render every frame and fight Leaflet for the main thread.
+  // rAF-coalesce so at most one bump per frame while hovering.
+  let reprojRaf = 0
+  map.on('move zoom', () => {
+    if (!hoverId.value && !clusterHover.value) return
+    if (reprojRaf) return
+    reprojRaf = requestAnimationFrame(() => { reprojRaf = 0; mapTick.value++ })
+  })
+  map.on('moveend zoomend', () => { mapTick.value++ })
+  map.on('click', () => { selId.value = null })
+  // clusters recompose on zoom, so drop the roster; panning just reprojects it
+  map.on('zoomstart', () => { clusterHover.value = null })
+
+  // hover a cluster → roster of its venues; click still zooms in (roster clears)
+  markerGroup
+    .on('clustermouseover', (e: any) => {
+      const vs = e.layer.getAllChildMarkers()
+        .map((m: any) => venues.value.find(v => v.id === m.bbId))
+        .filter(Boolean) as VenueVM[]
+      const ll = e.layer.getLatLng()
+      clusterHover.value = { venues: vs, lat: ll.lat, lng: ll.lng }
+    })
+    .on('clustermouseout', () => { clusterHover.value = null })
+    .on('clusterclick', () => { clusterHover.value = null })
+
+  try {
+    const recs = await fetch('https://admin.bluebillboard.co.uk/api/public/venues').then(r => r.json())
+    venues.value = buildVenues(recs)
+  } catch (e) {
+    console.error('[BOLT] failed to load venues', e)
+    venues.value = []
   }
 
-  if (urlParams.get('lat') && urlParams.get('lng')) {
-    lat = parseFloat(urlParams.get('lat')!);
-    lng = parseFloat(urlParams.get('lng')!);
-    zoomLevel = 14;
+  venues.value.forEach(addMarker)
+  mapTick.value++
+
+  // frame the whole network unless a specific location was requested
+  if (!hasFocus && venues.value.length && markerGroup.getBounds().isValid()) {
+    map.fitBounds(markerGroup.getBounds().pad(0.15))
   }
 
-  map.value = L.map('map').setView([lat, lng], zoomLevel);
-  markerGroup.value = L.layerGroup().addTo(map.value);
+  setTimeout(() => window.dispatchEvent(new Event('resize')), 400)
 
-  const STADIA_API_KEY = 'f5f0fc7d-849a-4c4f-86d3-22e9a7948ad4';
-  const TILE_LIGHT = `https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`;
-  const TILE_DARK  = `https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`;
-  const TILE_ATTRIBUTION = '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
+  // hold the overlay for a minimum beat so a fast localhost load doesn't flash
+  const held = performance.now() - t0
+  setTimeout(() => { loading.value = false }, Math.max(0, 650 - held))
+})
 
-  const lightTileLayer = L.tileLayer(TILE_LIGHT, { maxZoom: 20, attribution: TILE_ATTRIBUTION });
-  const darkTileLayer  = L.tileLayer(TILE_DARK,  { maxZoom: 20, attribution: TILE_ATTRIBUTION });
+onBeforeUnmount(() => { map?.remove() })
 
-  const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
-  let activeTileLayer: L.TileLayer = darkMQ.matches ? darkTileLayer : lightTileLayer;
-  activeTileLayer.addTo(map.value);
-
-  darkMQ.addEventListener('change', (e: MediaQueryListEvent) => {
-    activeTileLayer.remove();
-    activeTileLayer = e.matches ? darkTileLayer : lightTileLayer;
-    activeTileLayer.addTo(map.value);
-  });
-
-  L.Layer.include({
-    getProps: function () {
-      const feature = this.feature = this.feature || {}; // Initialize the feature, if missing.
-      feature.type = 'Feature';
-      feature.properties = feature.properties || {}; // Initialize the properties, if missing.
-      return feature.properties;
-    }
-  });
-
-  locationData.value = await fetch("https://admin.bluebillboard.co.uk/api/public/venues").then(res => res.json());
-  displayGroups.value = await fetch("https://admin.bluebillboard.co.uk/api/public/groups").then(res => res.json());
-  processLocationData();
-
-  setTimeout(function () {
-    window.dispatchEvent(new Event('resize'));
-  }, 1000);
-});
-
-const processLocationData = () => {
-  if (!locationData.value) return;
-  locationData.value.forEach((location: any) => {
-    const icon = L.divIcon({
-      className: 'custom-div-icon',
-      html: `<div class="pin-inner"><div class="marker-pin"></div><img src="img/customcolor_icon_transparent_background.png" alt="bbLogo"/></div>`,
-      iconSize: [50, 72],
-      iconAnchor: [25, 72]
-    });
-    const coords: any = [location.location.coordinates[1], location.location.coordinates[0]]
-    let marker: any = L.marker(coords, {icon: icon, riseOnHover: true}).addTo(markerGroup.value).on('click', (e: any) => showModal(e)).on('mouseover', function(this: any) { this.getElement()?.classList.add('pin-hovered'); }).on('mouseout', function(this: any) { this.getElement()?.classList.remove('pin-hovered'); });
-    marker.getProps().meta = location;
-  });
-};
-
-const showModal = (e: any) => {
-  meta.value = e.sourceTarget.getProps().meta;
-  cameFromViewAll.value = false;
-  open.value = true;
+// ─────────────── shared inline styles ───────────────
+const glassPill = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '10px',
+  padding: '9px 14px',
+  borderRadius: '999px',
+  background: 'rgba(255,255,255,0.82)',
+  backdropFilter: 'blur(12px)',
+  border: '1px solid rgba(20,20,20,0.08)',
+  boxShadow: '0 8px 24px rgba(20,20,20,0.12)',
 }
-
-// ========== View All Dialog Functions ==========
-
-// Navigate back from venue detail to View All list
-const backToViewAll = () => {
-  open.value = false;
-  cameFromViewAll.value = false;
-  viewAllOpen.value = true;
-}
-
-// Sort venues by monthly impressions (highest first)
-const sortedVenues = computed(() => {
-  return [...locationData.value].sort((a, b) => b.footfallPerMonth - a.footfallPerMonth);
-});
-
-// Filter state for View All dialog
-const viewAllSearchFilter = ref('');
-const viewAllGroupFilter = ref('');
-
-// Apply search and group filters to sorted venues
-const filteredSortedVenues = computed(() => {
-  let venues = sortedVenues.value;
-
-  // Apply search filter (name, city, type)
-  if (viewAllSearchFilter.value) {
-    const searchTerm = viewAllSearchFilter.value.toLowerCase();
-    venues = venues.filter((v: any) =>
-      v.name.toLowerCase().includes(searchTerm) ||
-      v.city.toLowerCase().includes(searchTerm) ||
-      v.type.toLowerCase().includes(searchTerm)
-    );
-  }
-
-  // Apply group filter
-  if (viewAllGroupFilter.value) {
-    const group = displayGroups.value.find((g: any) => g.id === viewAllGroupFilter.value);
-    if (group && group.venueIds) {
-      venues = venues.filter((v: any) => group.venueIds.includes(v.id));
-    }
-  }
-
-  return venues;
-});
 </script>
 
 <template>
-  <div class="flex h-screen">
-    <Dialog v-if="meta" v-model:visible="open" modal class="venue-dialog"
-            :style="{ width: '60rem', 'max-height': '90vh' }"
-            :breakpoints="{ '1199px': '80vw', '575px': '95vw' }">
-      <template #header>
-        <div class="venue-dialog-header">
-          <div class="venue-title-row">
-            <Button v-if="cameFromViewAll" icon="pi pi-arrow-left" @click="backToViewAll" text rounded size="small" class="back-btn" />
-            <h2 class="venue-title">{{ meta.name }}</h2>
-          </div>
-        </div>
-      </template>
+  <div class="bolt-app">
+    <div id="map" class="bolt-map"></div>
 
-      <!-- Hero Image -->
-      <div class="venue-hero-image">
-        <img :src="meta.image" :alt="meta.name" />
+    <!-- BOLT loading overlay: the mark charges up while venue pins load -->
+    <Transition name="bolt-loader-fade">
+      <div v-if="loading" class="bolt-loader">
+        <div class="bolt-loader__mark">
+          <BoltMark :size="60" :color="T.ink" cut-color="#FFF" :radius="16" />
+        </div>
+        <div class="bolt-loader__track"></div>
+        <div class="bolt-loader__label">Charging the network</div>
       </div>
+    </Transition>
 
-      <!-- Venue Details -->
-      <div class="venue-details">
-        <p class="venue-description">{{ meta.description }}</p>
-
-        <div class="venue-stats">
-          <div class="stat-item">
-            <i class="pi pi-map-marker"></i>
-            <div>
-              <span class="stat-label">Location</span>
-              <span class="stat-value">{{ meta.city }}</span>
-            </div>
-          </div>
-
-          <div class="stat-item">
-            <i class="pi pi-building"></i>
-            <div>
-              <span class="stat-label">Type</span>
-              <span class="stat-value">{{ meta.type }}</span>
-            </div>
-          </div>
-
-          <div class="stat-item">
-            <i class="pi pi-users"></i>
-            <div>
-              <span class="stat-label">Monthly Footfall</span>
-              <span class="stat-value">{{ meta.footfallPerMonth.toLocaleString() }}</span>
-            </div>
-          </div>
-
-          <div class="stat-item">
-            <i class="pi pi-desktop"></i>
-            <div>
-              <span class="stat-label">Screens</span>
-              <span class="stat-value">{{ meta.screenCount }}</span>
-            </div>
-          </div>
-        </div>
+    <!-- top-left: brand + search -->
+    <div v-if="!isStripped" :style="{ position: 'absolute', left: '22px', top: '22px', display: 'flex', alignItems: 'center', gap: '12px', zIndex: 60 }">
+      <div :style="glassPill">
+        <BoltMark :size="22" :color="T.ink" cut-color="#FFF" />
+        <span :style="{ fontFamily: T.display, fontWeight: 800, fontSize: '16px', letterSpacing: '-0.04em', color: T.ink }">BOLT</span>
       </div>
-    </Dialog>
-
-    <wizard-view :open-wizard="wizardOpen" :venues="locationData" :display-groups="displayGroups"
-                 @close-wizard="wizardOpen = false"/>
-
-    <!-- View All Venues Dialog -->
-    <Dialog v-model:visible="viewAllOpen" modal class="venues-list-dialog"
-            :style="{ width: '50rem', 'max-height': '80vh' }"
-            :breakpoints="{ '1199px': '70vw', '575px': '85vw' }"
-            :draggable="false"
-            :closable="true">
-      <template #header>
-        <div class="w-full">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">All Venues</h2>
-        </div>
-      </template>
-
-      <div class="view-all-content">
-        <!-- Filters -->
-        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg mb-4">
-          <div class="flex gap-3">
-            <div class="relative flex-1">
-              <i class="pi pi-search absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
-              <InputText
-                v-model="viewAllSearchFilter"
-                placeholder="Search by name, type, or location..."
-                class="w-full pl-9 text-sm"
-              />
-            </div>
-            <Select
-              showClear
-              v-model="viewAllGroupFilter"
-              :options="displayGroups"
-              class="w-64"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Filter by group"
-            />
-          </div>
-        </div>
-
-        <!-- Results Info -->
-        <div class="flex justify-between items-center mb-3">
-          <p class="text-xs text-gray-600 dark:text-gray-400">
-            Showing {{ filteredSortedVenues.length }} of {{ sortedVenues.length }} venues
-          </p>
-        </div>
-
-        <!-- Venue Grid -->
-        <div class="venue-grid">
-          <div
-            v-for="venue in filteredSortedVenues"
-            :key="venue.id"
-            class="venue-card"
-            @click="meta = venue; cameFromViewAll = true; open = true; viewAllOpen = false"
+      <div :style="{ position: 'relative' }">
+        <label :style="{ ...glassPill, padding: '9px 15px', width: '260px', color: T.inkDim, fontSize: '13px', cursor: 'text' }">
+          <Icon name="search" :size="14" :stroke="T.inkDim" />
+          <input
+            v-model="searchQ"
+            placeholder="Search the network…"
+            @focus="searchFocused = true"
+            @click="searchFocused = true"
+            @blur="onSearchBlur"
+            :style="{ border: 'none', outline: 'none', background: 'transparent', width: '100%', fontSize: '13px', color: T.ink, fontFamily: T.body }"
+          />
+        </label>
+        <!-- results -->
+        <div
+          v-if="searchFocused && searchResults.length"
+          :style="{ position: 'absolute', top: '48px', left: 0, width: '300px', background: T.surface, border: `1px solid ${T.hair}`, borderRadius: '14px', boxShadow: '0 18px 44px rgba(20,20,20,0.18)', overflow: 'hidden', zIndex: 90 }"
+        >
+          <button
+            v-for="v in searchResults"
+            :key="v.id"
+            @mousedown.prevent="pickSearch(v)"
+            :style="{ display: 'flex', alignItems: 'center', gap: '11px', width: '100%', textAlign: 'left', border: 'none', borderBottom: `1px solid ${T.hairSoft}`, background: 'transparent', cursor: 'pointer', padding: '9px 12px' }"
           >
-            <div class="venue-card-image">
-              <img
-                :src="venue.image"
-                :alt="venue.name"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-            <div class="venue-card-content">
-              <h4 class="venue-card-title">{{ venue.name }}</h4>
-              <div class="venue-card-details">
-                <span><i class="pi pi-map-marker"></i> {{ venue.city }}</span>
-                <span><i class="pi pi-tag"></i> {{ venue.type }}</span>
-              </div>
-            </div>
-          </div>
+            <span :style="{ width: '38px', height: '38px', borderRadius: '9px', flexShrink: 0, background: coverBg(v.img) }" />
+            <span :style="{ minWidth: 0 }">
+              <span :style="{ display: 'block', fontFamily: T.display, fontWeight: 700, fontSize: '14px', color: T.ink, letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">{{ v.name }}</span>
+              <span :style="{ display: 'block', fontFamily: T.mono, fontSize: '10.5px', color: T.inkDim, marginTop: '1px' }">{{ v.type }} · {{ v.city }}</span>
+            </span>
+          </button>
         </div>
       </div>
-    </Dialog>
-
-    <div id="map">
-
     </div>
-    <button v-if="isStripped || showQuoteButton" @click="isStripped ? viewAllOpen = true : wizardOpen = true" id="quoteButton"
-            class="quote-button">
-      {{ isStripped ? 'View All' : 'Get Quote' }}
-    </button>
-    <toast/>
+
+    <!-- bottom-left: network stat pill -->
+    <div v-if="!isStripped" :style="{ position: 'absolute', left: '22px', bottom: '22px', zIndex: 60 }">
+      <div :style="glassPill">
+        <Icon name="globe" :size="14" :stroke="T.ink" />
+        <span :style="{ fontFamily: T.mono, fontSize: '12px', color: T.ink, fontVariantNumeric: 'tabular-nums' }">{{ network.venues }} venues · {{ fmtK(network.impressions) }} monthly reach</span>
+      </div>
+    </div>
+
+    <!-- animated hover preview above (or below) the hovered pin -->
+    <div v-if="hoverV && hoverPos" :style="{ position: 'absolute', left: hoverPos.left, top: hoverPos.top, zIndex: 70, pointerEvents: 'none' }">
+      <HoverPreview :v="hoverV" :above="hoverPos.above" />
+    </div>
+
+    <!-- cluster hover roster: lists every venue in the hovered cluster -->
+    <div
+      v-if="clusterHover && clusterHoverPos"
+      :style="{
+        position: 'absolute', left: clusterHoverPos.left, top: clusterHoverPos.top, zIndex: 72,
+        transform: clusterHoverPos.above ? 'translate(-50%, calc(-100% - 40px))' : 'translate(-50%, 40px)',
+        pointerEvents: 'none', width: '256px', background: T.surface, borderRadius: '14px',
+        border: `1px solid ${T.hair}`, boxShadow: '0 22px 54px rgba(13,27,42,0.28)',
+        padding: '11px 6px 7px', animation: 'vm-fade 140ms ease both',
+      }"
+    >
+      <div :style="{ padding: '0 10px 8px', fontFamily: T.mono, fontSize: '10px', letterSpacing: '0.14em', textTransform: 'uppercase', color: T.inkDim }">
+        {{ clusterHover.venues.length }} venues
+      </div>
+      <div
+        v-for="v in clusterHover.venues.slice(0, 8)"
+        :key="v.id"
+        :style="{ display: 'flex', alignItems: 'center', gap: '9px', padding: '5px 10px' }"
+      >
+        <span :style="{ width: '26px', height: '26px', borderRadius: '7px', flexShrink: 0, background: coverBg(v.img) }" />
+        <div :style="{ minWidth: 0, flex: 1 }">
+          <div :style="{ fontFamily: T.display, fontWeight: 600, fontSize: '13px', letterSpacing: '-0.01em', color: T.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">{{ v.name }}</div>
+          <div :style="{ fontFamily: T.mono, fontSize: '10px', color: T.inkDim, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">{{ v.type }}<template v-if="v.city"> · {{ v.city }}</template></div>
+        </div>
+        <span v-if="v.hot" :style="{ width: '7px', height: '7px', borderRadius: '999px', background: T.mint, flexShrink: 0 }" />
+      </div>
+      <div :style="{ padding: '7px 10px 2px', fontFamily: T.mono, fontSize: '10px', letterSpacing: '0.02em', color: T.inkFaint }">
+        <template v-if="clusterHover.venues.length > 8">+{{ clusterHover.venues.length - 8 }} more · </template>click to zoom in
+      </div>
+    </div>
+
+    <!-- map zoom controls (shift left when the detail panel is open) -->
+    <div :style="{ position: 'absolute', bottom: '26px', right: sel ? '506px' : '26px', transition: 'right 320ms cubic-bezier(.3,.8,.25,1)', zIndex: 80 }">
+      <div :style="{ display: 'flex', flexDirection: 'column', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(12px)', border: `1px solid ${T.hair}`, borderRadius: '12px', overflow: 'hidden', boxShadow: '0 8px 24px rgba(20,20,20,0.12)' }">
+        <button @click="zoomIn" :style="{ width: '38px', height: '38px', display: 'grid', placeItems: 'center', border: 'none', background: 'transparent', cursor: 'pointer' }">
+          <Icon name="plus" :size="16" :width="2" :stroke="T.ink" />
+        </button>
+        <button @click="zoomOut" :style="{ width: '38px', height: '38px', display: 'grid', placeItems: 'center', border: 'none', borderTop: `1px solid ${T.hair}`, background: 'transparent', cursor: 'pointer' }">
+          <span :style="{ width: '14px', height: '2px', borderRadius: '2px', background: T.ink }" />
+        </button>
+      </div>
+    </div>
+
+    <!-- floating plan bar (quote feature only) -->
+    <PlanBar v-if="showQuote" :plan="plan" @open="quoteOpen = true" @clear="planIds = []" />
+
+    <!-- venue detail panel -->
+    <VenueDetailPanel
+      :v="sel"
+      :in-plan="inPlan"
+      :show-quote="showQuote"
+      @close="selId = null"
+      @add="() => sel && togglePlan(sel.id)"
+      @quote="onQuote"
+    />
+
+    <!-- quote builder -->
+    <QuoteBuilder
+      v-if="showQuote && quoteOpen && plan.length"
+      :plan="plan"
+      v-model:weeks="weeks"
+      @close="quoteOpen = false"
+      @remove="togglePlan"
+      @view-doc="d => (docData = d)"
+    />
+
+    <!-- branded quote document -->
+    <QuoteDocument v-if="showQuote && docData" :data="docData" @close="docData = null" />
   </div>
 </template>
-
-<style scoped>
-/* Quote Button */
-.quote-button {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 19;
-  background-color: #0d47a1;
-  color: white;
-  font-weight: 600;
-  padding: 0.875rem 1.5rem;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-}
-
-.quote-button:hover {
-  background-color: #1565c0;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  transform: translateY(-2px);
-}
-
-/* Venue Dialog Styling */
-.venue-dialog-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.venue-title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Back button - only shown when navigating from View All dialog */
-.back-btn {
-  color: #6b7280 !important;
-  width: 2rem !important;
-  height: 2rem !important;
-  padding: 0 !important;
-  flex-shrink: 0;
-}
-
-.back-btn:hover {
-  color: #0d47a1 !important;
-  background: #f3f4f6 !important;
-}
-
-.venue-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0;
-  line-height: 1.2;
-}
-
-.venue-level-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
-  color: white;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  width: fit-content;
-}
-
-.venue-hero-image {
-  width: 100%;
-  max-height: 400px;
-  overflow: hidden;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.venue-hero-image img {
-  max-width: 100%;
-  max-height: 400px;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  display: block;
-}
-
-.venue-details {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.venue-description {
-  font-size: 1.125rem;
-  line-height: 1.75;
-  color: #4b5563;
-  margin: 0;
-}
-
-.venue-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-}
-
-.stat-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.5rem;
-  background: #f9fafb;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  transition: all 0.2s ease;
-}
-
-.stat-item:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.stat-item i {
-  font-size: 1.5rem;
-  color: #0d47a1;
-  margin-top: 0.25rem;
-}
-
-.stat-item > div {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  flex: 1;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.stat-value {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #111827;
-}
-
-/* Dark Mode */
-@media (prefers-color-scheme: dark) {
-  .back-btn {
-    color: #9ca3af !important;
-  }
-
-  .back-btn:hover {
-    color: #60a5fa !important;
-    background: #374151 !important;
-  }
-
-  .venue-title {
-    color: #f9fafb;
-  }
-
-  .venue-description {
-    color: #d1d5db;
-  }
-
-  .stat-item {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .stat-item:hover {
-    background: #374151;
-    border-color: #4b5563;
-  }
-
-  .stat-item i {
-    color: #60a5fa;
-  }
-
-  .stat-label {
-    color: #9ca3af;
-  }
-
-  .stat-value {
-    color: #f9fafb;
-  }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .venue-hero-image {
-    max-height: 250px;
-  }
-
-  .venue-hero-image img {
-    max-height: 250px;
-  }
-
-  .venue-stats {
-    grid-template-columns: 1fr;
-  }
-
-  .venue-title {
-    font-size: 1.5rem;
-  }
-}
-
-/* ========== View All Venues Dialog (Stripped Mode) ========== */
-
-.venues-list-dialog {
-  background-color: white;
-}
-
-@media (prefers-color-scheme: dark) {
-  .venues-list-dialog {
-    background-color: #111827 !important;
-  }
-}
-
-.view-all-content {
-  padding: 0;
-  min-height: 350px;
-}
-
-/* Venue Grid - Matches Wizard styling */
-.venue-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.875rem;
-  padding: 0.25rem;
-  content-visibility: auto;
-  max-height: 50vh;
-  overflow-y: auto;
-}
-
-.venue-card {
-  position: relative;
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
-  contain: layout style paint;
-  content-visibility: auto;
-}
-
-.venue-card:hover {
-  border-color: #0d47a1;
-}
-
-.venue-card-image {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  background: #f3f4f6;
-  contain: layout paint;
-  aspect-ratio: 4 / 3;
-}
-
-.venue-card-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-}
-
-.venue-card-content {
-  padding: 0.75rem;
-}
-
-.venue-card-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 0.375rem;
-}
-
-.venue-card-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.75rem;
-  color: #6b7280;
-}
-
-.venue-card-details span {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-/* Dark mode adjustments */
-@media (prefers-color-scheme: dark) {
-  .venue-card {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .venue-card:hover {
-    border-color: #60a5fa;
-    box-shadow: 0 12px 24px rgba(96, 165, 250, 0.15);
-  }
-
-  .venue-card-title {
-    color: #f9fafb;
-  }
-
-  .venue-card-image {
-    background: #111827;
-  }
-}
-</style>
-
