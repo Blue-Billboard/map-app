@@ -1,11 +1,10 @@
 /* Quote maths + shared QuoteData shape — used by QuoteBuilder and QuoteDocument
-   so both agree on numbers. Uses REAL per-venue rates from the live API, falling
-   back to the prototype's indicative rate only where a venue has none. */
+   so both agree on numbers. CPM-based: every venue carries a rate-card CPM and
+   a forecast monthly impressions figure resolved server-side, so the quote is
+   the raw CPM price for the flight — no discounts, no per-venue fallback rate. */
 
 import type { VenueVM } from './data'
 
-export const RATE = 420               // £ / screen / month — indicative fallback only
-export const IMPRESSION_RATE = 0.12   // plays per footfall — fallback when no live impressions
 export const SALES_EMAIL = 'sales@bluebillboard.co.uk'
 
 export interface Contact {
@@ -16,31 +15,28 @@ export interface Contact {
 }
 
 export interface QuoteTotals {
-  reach: number         // combined footfall / month
+  reach: number         // combined footfall / month (unchanged, footfall-based)
   screens: number
-  months: number        // flight length in months
-  cost: number          // indicative media total for the flight (£)
-  impressions: number   // estimated plays over the flight
+  cost: number          // indicative media total for the flight (£), CPM-based, rounded once
+  impressions: number   // estimated plays over the flight at the given SoV
+  anyEstimated: boolean // true when any included venue's impressions figure is Estimated (not Measured/Forecast)
 }
 
-// Media for one venue for one month.
-function venueMonthly(v: VenueVM): number {
-  if (v.rate > 0) return v.isRatePerScreen ? v.rate * v.screens : v.rate
-  return RATE * v.screens
-}
-
-export function computeQuote(plan: VenueVM[], weeks: number): QuoteTotals {
+// flightImps = forecastMonthlyImpressions × weeks × 7 / 30 (a month's forecast, scaled to the flight length)
+// price = cpm × flightImps × sov/100 / 1000 (CPM = £ per 1000 impressions, sov = the tier's share of plays)
+export function computeQuote(plan: VenueVM[], weeks: number, sov: number): QuoteTotals {
   const reach = plan.reduce((s, v) => s + v.footfall, 0)
   const screens = plan.reduce((s, v) => s + v.screens, 0)
-  const months = weeks / 4.345
-  const media = plan.reduce((s, v) => s + venueMonthly(v), 0)
-  const cost = Math.round(media * months)
-  const impBase = plan.reduce(
-    (s, v) => s + (v.impressionsPerMonth > 0 ? v.impressionsPerMonth : v.footfall * IMPRESSION_RATE),
-    0,
-  )
-  const impressions = Math.round(impBase * months)
-  return { reach, screens, months, cost, impressions }
+  const share = sov / 100
+  let cost = 0
+  let impressions = 0
+  plan.forEach(v => {
+    const flightImps = v.forecastMonthlyImpressions * weeks * 7 / 30
+    cost += v.cpm * flightImps * share / 1000
+    impressions += flightImps * share
+  })
+  const anyEstimated = plan.some(v => v.impressionsSource === 'Estimated')
+  return { reach, screens, cost: Math.round(cost), impressions: Math.round(impressions), anyEstimated }
 }
 
 export interface QuoteData extends QuoteTotals {
@@ -49,6 +45,7 @@ export interface QuoteData extends QuoteTotals {
   campaign: string
   startDate: string
   weeks: number
+  sov: number
   plan: VenueVM[]
   date: string
 }

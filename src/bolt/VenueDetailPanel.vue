@@ -4,7 +4,7 @@
    selected. Ports the prototype's VenueDetail. */
 import { computed, ref, watch } from 'vue'
 import { T } from './tokens'
-import { audienceFor, loadAudience, monthlyImpressions, fmtK, coverBg, type VenueVM } from './data'
+import { audienceFor, loadAudience, monthlyImpressions, profileKeyFor, fmtK, coverBg, type VenueVM } from './data'
 import Icon from './Icon.vue'
 import Chip from './Chip.vue'
 import BoltButton from './BoltButton.vue'
@@ -20,6 +20,29 @@ const d = ref<VenueVM | null>(props.v)
 watch(() => props.v, nv => { if (nv) { d.value = nv; loadAudience(nv) } }, { immediate: true })
 
 const aud = computed(() => (d.value ? audienceFor(d.value) : null))
+
+// Broader audience grouping (e.g. "Gym", "Retail") — shown as a muted secondary
+// chip only when it's a genuinely different label to the venue's own type, so
+// the panel doesn't repeat itself with two identical chips.
+const parentGroup = computed(() => {
+  if (!d.value) return null
+  const group = profileKeyFor(d.value.openOohTypeId, d.value.type)
+  // Suppress the group chip when it just echoes the category label (case-insensitive, and
+  // ignoring singular/plural — e.g. category "Gyms" vs group "Gym" should show one chip).
+  const norm = (s: string) => s.toLowerCase().replace(/s$/, '')
+  const type = d.value.type ?? ''
+  const redundant = norm(group) === norm(type) || type.toLowerCase().includes(group.toLowerCase());
+  return redundant ? null : group
+})
+// "verified" vs "estimated" sub-label for the Impressions/mo stat. When the F6 forecast drives
+// the displayed number (forecastMonthlyImpressions > 0), key off its source — Measured/Forecast
+// are visitor-data-backed ("verified"), Estimated is the fallback. Otherwise fall back to whether
+// a real audience series loaded.
+const impressionsVerified = computed(() => {
+  if (!d.value) return false
+  if (d.value.forecastMonthlyImpressions > 0) return d.value.impressionsSource !== 'Estimated'
+  return !!aud.value?.footfallReal
+})
 const heroStyle = computed(() => ({
   position: 'relative' as const,
   height: '236px',
@@ -30,7 +53,7 @@ const heroStyle = computed(() => ({
 const stats = computed(() => {
   if (!d.value || !aud.value) return []
   return [
-    { label: 'Impressions / mo', value: fmtK(monthlyImpressions(d.value)), sub: aud.value.footfallReal ? 'verified' : 'estimated' },
+    { label: 'Impressions / mo', value: fmtK(monthlyImpressions(d.value)), sub: impressionsVerified.value ? 'verified' : 'estimated' },
     { label: 'Avg dwell', value: `${aud.value.dwell}m`, sub: 'per visit' },
     { label: 'Screens', value: String(d.value.screens), sub: 'Full HD' },
   ]
@@ -62,6 +85,7 @@ const stats = computed(() => {
         <div :style="{ position: 'absolute', left: '26px', right: '26px', bottom: '20px' }">
           <div :style="{ display: 'flex', gap: '7px', marginBottom: '11px' }">
             <Chip tone="blue" size="sm">{{ d.type }}</Chip>
+            <Chip v-if="parentGroup" tone="neutral" size="sm">{{ parentGroup }}</Chip>
             <Chip v-if="d.hot" tone="mint" size="sm">Top reach</Chip>
           </div>
           <h1 :style="{ margin: 0, fontFamily: T.display, fontWeight: 700, fontSize: '34px', letterSpacing: '-0.04em', lineHeight: 0.98, color: '#FFF' }">{{ d.name }}</h1>

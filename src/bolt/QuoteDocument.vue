@@ -122,6 +122,9 @@ const venueStats = (v: VenueVM) => {
             <span :style="{ fontFamily: T.display, fontWeight: 700, fontSize: '18px' }">Indicative total</span>
             <span :style="{ fontFamily: T.display, fontWeight: 700, fontSize: '28px', letterSpacing: '-0.03em', color: T.ink, fontVariantNumeric: 'tabular-nums' }">{{ money(data.cost) }}<span :style="{ fontSize: '13px', color: T.inkDim, fontWeight: 500 }"> +VAT</span></span>
           </div>
+          <div v-if="data.anyEstimated" :style="{ marginTop: '10px', fontSize: '11.5px', color: T.inkFaint }">
+            * Visitor numbers for one or more venues in this plan are estimated.
+          </div>
         </div>
 
         <!-- footer -->

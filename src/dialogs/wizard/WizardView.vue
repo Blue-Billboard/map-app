@@ -15,13 +15,7 @@ interface Plan {
   features: string[];
 }
 const toast = useToast();
-const isCharity = ref<boolean>(false);
-const isPartner = ref<boolean>(false);
-const isChamber = ref<boolean>(false);
-const isCircle = ref<boolean>(false);
 const displayGroup = ref<string>("");
-const totalRate = ref(0);
-const op = ref();
 const filters = ref<{
   global: { value: string | null, matchMode: string },
   id: { value: string[] | null, matchMode: string }
@@ -69,7 +63,6 @@ const items = ref([
 const currentPage = ref<number>(1);
 const itemsPerPage = 8; // Show 8 venues at a time for better performance
 
-const chambers = ["Worthing & Adur Chamber of Commerce", "Sussex Chamber of Commerce", "Brighton Chamber of Commerce", "Worthing Business Circle", "HHBA", "Horsham & Billingshurst Chamber of Commerce", "Independent Worthing"];
 const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 const selectedVenues = ref<SelectedVenues>();
@@ -128,14 +121,18 @@ const handleGridClick = (event: MouseEvent) => {
   selectVenue(venue);
 }
 
-// Tier configuration: SOV percentages and price multipliers
-// Based on 10-second slots (360 slots/hour) with ~10% volume discount per tier
+// Tier configuration: share of voice per rotation. Pricing is the raw CPM rate
+// for that share — no discounts, no fixed multipliers (D4).
 const TIER_CONFIG = {
-  starter: { sov: 2.08, multiplier: 1.0 },    // 1 in 48 rotation
-  optimal: { sov: 4.16, multiplier: 1.8 },    // 1 in 24 rotation
-  enhanced: { sov: 8.33, multiplier: 3.2 },   // 1 in 12 rotation
-  oneInSix: { sov: 16.67, multiplier: 5.6 },  // 1 in 6 rotation
+  starter: { sov: 2.08 },    // 1 in 48 rotation
+  optimal: { sov: 4.16 },    // 1 in 24 rotation
+  enhanced: { sov: 8.33 },   // 1 in 12 rotation
+  oneInSix: { sov: 16.67 }, // 1 in 6 rotation
 };
+
+// Weeks per calendar month — matches src/bolt/data.ts WEEKS_PER_MONTH, so this
+// wizard's month-based duration and the map's week-based flight length agree.
+const WEEKS_PER_MONTH = 4.345;
 
 const plans = ref<Plan[]>([
   {
@@ -173,96 +170,41 @@ const resetCalculations = () => {
     plan.features = [];
     plan.price = 0;
   });
-  totalRate.value = 0;
 }
 
+// CPM-based quote: no discounts (D4). Per venue, per tier:
+//   flightImps = forecastMonthlyImpressions × weeks × 7 / 30
+//   price      = cpm × flightImps × sov/100 / 1000
+// cost per tier is the sum of that tier's per-venue prices, rounded once.
 const calculateQuote = () => {
   resetCalculations();
-  let totalDiscount = 0;
-  let totalImpressionsPerMonth = 0;
-  let totalImpressionsPerFortnight = 0;
-  selectedVenues.value?.selected.forEach((venue: any) => {
-    if (venue.isRatePerScreen) {
-      totalRate.value += venue.rate * venue.screenCount;
-    } else {
-      totalRate.value += venue.rate;
-    }
-    // Sum impressions
-    totalImpressionsPerMonth += venue.impressionsPerMonth;
-    totalImpressionsPerFortnight += venue.impressionsPerFortnight;
-  });
+  const weeks = duration.value * WEEKS_PER_MONTH;
 
-  // Apply Discounts
-  // Apply Charity
-  if (isCharity.value) {
-    totalDiscount = totalDiscount + 0.25;
-    plans.value.forEach(plan => plan.features.push("Includes Charity discount of 25%"));
-  }
-  // Apply Partner
-  if (isPartner.value) {
-    totalDiscount = totalDiscount + 0.25;
-    plans.value.forEach(plan => plan.features.push("Includes Partner discount of 25%"));
-  }
-  // Apply Chamber
-  if (isChamber.value) {
-    totalDiscount = totalDiscount + 0.25;
-    plans.value.forEach(plan => plan.features.push("Includes Chamber discount of 25%"));
-  }
-  // Apply Circle
-  if (isCircle.value) {
-    totalDiscount = totalDiscount + 0.25;
-    plans.value.forEach(plan => plan.features.push("Includes WBC discount of 25%"));
-  }
-  // Apply MultiSite
-  if (selectedVenues.value && selectedVenues.value?.selected.length >= 2) {
-    totalDiscount = totalDiscount + 0.10;
-    plans.value.forEach(plan => plan.features.push("Includes Multi Site discount of 10%"));
-  }
-  // Apply MultiMonth
-  if (duration.value >= 3) {
-    totalDiscount = totalDiscount + 0.10;
-    plans.value.forEach(plan => plan.features.push("Includes Multi Month discount of 10%"));
-  }
-
-  // SOV percentages for each tier
   const sovPercentages = [
     TIER_CONFIG.starter.sov,
     TIER_CONFIG.optimal.sov,
     TIER_CONFIG.enhanced.sov,
     TIER_CONFIG.oneInSix.sov,
   ];
+  const tierImpressions = [0, 0, 0, 0];
+  const tierCost = [0, 0, 0, 0];
 
-  // Apply Impressions with formatting
-  plans.value.forEach((plan, index) => {
-    const monthlyImpressions = Math.round((sovPercentages[index] / 100) * totalImpressionsPerMonth);
-    const fortnightImpressions = Math.round((sovPercentages[index] / 100) * totalImpressionsPerFortnight);
-    plan.features.push(`Total Impressions Per Month: ${monthlyImpressions.toLocaleString()}`);
-    plan.features.push(`Total Impressions Per Fortnight: ${fortnightImpressions.toLocaleString()}`);
+  selectedVenues.value?.selected.forEach((venue: any) => {
+    const flightImps = (venue.forecastMonthlyImpressions || 0) * weeks * 7 / 30;
+    sovPercentages.forEach((sov, index) => {
+      const share = sov / 100;
+      tierImpressions[index] += flightImps * share;
+      tierCost[index] += (venue.cpm || 0) * flightImps * share / 1000;
+    });
   });
 
-  // Apply discount and calculate prices with tier multipliers
-  applyDiscount(totalDiscount);
-  const multipliers = [
-    TIER_CONFIG.starter.multiplier,
-    TIER_CONFIG.optimal.multiplier,
-    TIER_CONFIG.enhanced.multiplier,
-    TIER_CONFIG.oneInSix.multiplier,
-  ];
   plans.value.forEach((plan, index) => {
-    plan.price = totalRate.value * multipliers[index];
+    plan.features.push(`Estimated plays over the flight: ${Math.round(tierImpressions[index]).toLocaleString()}`);
+    plan.price = Math.round(tierCost[index]);
   });
 };
-
-const applyDiscount = (discount: number) => {
-  totalRate.value = totalRate.value - (totalRate.value * discount);
-};
-
-const toggle = (event: any) => {
-  op.value.toggle(event);
-}
 
 const closeWizard = () => {
-  totalRate.value = 0;
   selectedVenues.value = undefined;
   active.value = 0;
   filters.value.global.value = null;
@@ -549,54 +491,7 @@ const getTierCTAClass = (index: number): string => {
                   {{ slotProps.option }} month{{ slotProps.option !== 1 ? 's' : '' }}
                 </template>
               </Select>
-              <p class="info-hint">Campaigns 3+ months receive a 10% discount</p>
-            </div>
-
-            <!-- Discounts -->
-            <div class="info-section">
-              <label class="info-label">
-                <i class="pi pi-percentage"></i>
-                Available Discounts
-              </label>
-              <div class="discount-options">
-                <div :class="['discount-card', { 'disabled': isPartner || isChamber }]" @click="!isPartner && !isChamber && (isCharity = !isCharity)">
-                  <Checkbox v-model="isCharity" :binary="true" :disabled="isPartner || isChamber" />
-                  <div class="discount-info">
-                    <span class="discount-title">Registered Charity</span>
-                  </div>
-                  <span class="discount-value">25% off</span>
-                </div>
-
-                <div :class="['discount-card', { 'disabled': isChamber || isCharity }]" @click="!isChamber && !isCharity && (isPartner = !isPartner)">
-                  <Checkbox v-model="isPartner" :binary="true" :disabled="isChamber || isCharity" />
-                  <div class="discount-info">
-                    <span class="discount-title">Blue Billboard Partner</span>
-                  </div>
-                  <span class="discount-value">25% off</span>
-                </div>
-
-                <div :class="['discount-card', { 'disabled': isCharity || isPartner }]" @click="!isCharity && !isPartner && (isChamber = !isChamber)">
-                  <Checkbox v-model="isChamber" :binary="true" :disabled="isCharity || isPartner" />
-                  <div class="discount-info">
-                    <span class="discount-title">
-                      Chamber Member
-                      <Button icon="pi pi-info-circle" @click.stop="toggle" text rounded size="small" class="ml-1" />
-                    </span>
-                  </div>
-                  <span class="discount-value">25% off</span>
-                </div>
-
-                <Popover ref="op" class="surface-card shadow-2 border-round">
-                  <div class="p-4">
-                    <h4 class="font-semibold mb-3">Approved Chambers & Groups</h4>
-                    <ul class="space-y-2">
-                      <li v-for="(chamber, cIdx) in chambers" :key="cIdx" class="text-sm">
-                        <i class="pi pi-check text-green-600 mr-2"></i>{{ chamber }}
-                      </li>
-                    </ul>
-                  </div>
-                </Popover>
-              </div>
+              <p class="info-hint">Pricing updates instantly as you change the campaign length</p>
             </div>
 
             <!-- Selected Venues Summary -->
@@ -608,6 +503,7 @@ const getTierCTAClass = (index: number): string => {
               <div class="selected-venues-summary">
                 <div v-for="venue in selectedVenues?.selected" :key="venue.id" class="selected-venue-chip">
                   {{ venue.name }}
+                  <span v-if="venue.impressionsSource === 'Estimated'" class="estimated-chip">Estimated visitor numbers</span>
                   <Button icon="pi pi-times" text rounded size="small" @click="selectVenue(venue)" />
                 </div>
               </div>
@@ -633,7 +529,7 @@ const getTierCTAClass = (index: number): string => {
           <div class="pricing-step-header mb-6">
             <h3 class="text-2xl font-bold text-gray-900">Your Custom Quote</h3>
             <p class="text-gray-500 mt-1 text-base">Choose the plan that works best for your business</p>
-            <p class="text-gray-400 text-sm mt-1">All prices shown are per month + VAT</p>
+            <p class="text-gray-400 text-sm mt-1">Prices shown are the total for your {{ duration }}-month campaign + VAT</p>
           </div>
 
           <!-- Pricing Cards -->
@@ -1176,63 +1072,6 @@ const getTierCTAClass = (index: number): string => {
   border: 1px solid #e5e7eb;
 }
 
-.discount-options {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Discount Cards */
-.discount-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.25rem;
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 0;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
-  position: relative;
-}
-
-.discount-card:hover:not(.disabled) {
-  background: #f3f4f6;
-  transform: scale(1.02);
-  transform-origin: center center;
-}
-
-.discount-card.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  pointer-events: none;
-  background: #f9fafb;
-}
-
-.discount-info {
-  display: flex;
-  align-items: center;
-  flex: 1;
-}
-
-.discount-title {
-  font-weight: 500;
-  color: #111827;
-  display: flex;
-  align-items: center;
-}
-
-/* Discount Value Badge */
-.discount-value {
-  padding: 0.375rem 1rem;
-  background: #059669;
-  color: white;
-  border-radius: 0;
-  font-weight: 700;
-  font-size: 0.875rem;
-  white-space: nowrap;
-}
-
 .selected-venues-summary {
   display: flex;
   flex-wrap: wrap;
@@ -1247,6 +1086,16 @@ const getTierCTAClass = (index: number): string => {
   background: #f3f4f6;
   border-radius: 0;
   font-size: 0.875rem;
+}
+
+.estimated-chip {
+  padding: 0.25rem 0.625rem;
+  background: #e5e7eb;
+  color: #4b5563;
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Pricing Grid - Responsive Layout */

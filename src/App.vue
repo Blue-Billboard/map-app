@@ -250,7 +250,9 @@ onMounted(async () => {
 
   try {
     const recs = await fetch('https://admin.bluebillboard.co.uk/api/public/venues').then(r => r.json())
-    venues.value = buildVenues(recs)
+    // The API already excludes not-for-sale venues (F2) — this is a defensive
+    // guard only, in case a raw record ever slips through with isForSale=false.
+    venues.value = buildVenues(recs.filter((r: any) => r?.isForSale !== false))
   } catch (e) {
     console.error('[BOLT] failed to load venues', e)
     venues.value = []

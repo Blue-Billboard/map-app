@@ -25,11 +25,15 @@ const startDate = ref('14 Jul 2026')
 const refCode = ref('BB-2026-' + Math.floor(1000 + Math.random() * 9000))
 const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
+// Chosen tier's share of voice — defaults to "Optimal" (4.16%, 1-in-24 rotation).
+// No tier picker in this builder yet; both quote paths agree on the same SoV set.
+const sov = ref(4.16)
+
 // Warm the reactive audience cache so plan rows / the quote doc show real
 // index + affluence for any venue the user reached without opening its panel.
 onMounted(() => props.plan.forEach(loadAudience))
 
-const totals = computed(() => computeQuote(props.plan, props.weeks))
+const totals = computed(() => computeQuote(props.plan, props.weeks, sov.value))
 const valid = computed(() => !!c.name.trim() && /\S+@\S+\.\S+/.test(c.email))
 
 const quoteData = computed<QuoteData>(() => ({
@@ -38,6 +42,7 @@ const quoteData = computed<QuoteData>(() => ({
   campaign: campaign.value,
   startDate: startDate.value,
   weeks: props.weeks,
+  sov: sov.value,
   plan: props.plan,
   ...totals.value,
   date: dateStr,
@@ -82,6 +87,7 @@ async function submit() {
         campaign: campaign.value,
         startDate: startDate.value,
         weeks: props.weeks,
+        sov: sov.value,
         venueIds: props.plan.map(v => v.id),
         totals: {
           reach: totals.value.reach,

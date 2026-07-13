@@ -23,6 +23,10 @@ export interface VenueVM {
   rate: number
   isRatePerScreen: boolean
   impressionsPerMonth: number
+  openOohTypeId: number       // OpenOOH Venue Taxonomy id (wire field: openOohVenueTypeId)
+  cpm: number                 // £ per 1000 impressions, resolved from the CPM rate card
+  forecastMonthlyImpressions: number
+  impressionsSource: string   // "Measured" | "Forecast" | "Estimated"
   level: string         // Blue | Gold | Platinum
   description: string
   partner?: string
@@ -93,8 +97,26 @@ export const DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
 export type ProfileKey = keyof typeof AUD_PROFILES
 
-// Map any raw venue type onto one of the five audience buckets.
-export function profileKeyFor(type: string): ProfileKey {
+// OpenOOH Venue Taxonomy id → audience bucket (spec'd mapping; see F3 taxonomy).
+const OPENOOH_ID_PROFILE: Record<number, ProfileKey> = {
+  401: 'Gym', 40101: 'Gym', 40102: 'Gym',
+  803: 'Football',
+  801: 'Golf',
+  804: 'Hospitality', 805: 'Hospitality', 806: 'Hospitality', 807: 'Hospitality', 809: 'Hospitality', 810: 'Hospitality',
+  205: 'Retail',
+}
+
+// Map a venue onto one of the five audience buckets. Keyed on the OpenOOH
+// Venue Taxonomy id (stable, language-independent) — the raw type-string
+// matcher is kept only as a last-resort fallback for venues with no id yet.
+export function profileKeyFor(openOohTypeId: number | undefined, type?: string): ProfileKey {
+  const id = openOohTypeId || 0
+  if (id > 0) {
+    if (OPENOOH_ID_PROFILE[id]) return OPENOOH_ID_PROFILE[id]
+    if (id >= 20500 && id < 20600) return 'Retail' // 205xx retail sub-categories
+    return 'Retail'
+  }
+  // Legacy fallback — only reached when the id is missing (id === 0).
   const t = (type || '').toLowerCase()
   if (/(golf)/.test(t)) return 'Golf'
   if (/(gym|fitness|leisure|health)/.test(t)) return 'Gym'
@@ -112,8 +134,8 @@ export const TYPE_ICON: Record<ProfileKey, string> = {
   Hospitality: 'home',
 }
 
-export function iconForType(type: string): string {
-  return TYPE_ICON[profileKeyFor(type)] || 'pin'
+export function iconForType(type: string, openOohTypeId?: number): string {
+  return TYPE_ICON[profileKeyFor(openOohTypeId, type)] || 'pin'
 }
 
 export interface Audience extends AudProfile {
@@ -123,7 +145,7 @@ export interface Audience extends AudProfile {
 
 // Synthetic profile keyed on venue type — the fallback when the API has no data.
 function mockAudienceFor(v: VenueVM): Audience {
-  const p = AUD_PROFILES[profileKeyFor(v.type)] || AUD_PROFILES.Retail
+  const p = AUD_PROFILES[profileKeyFor(v.openOohTypeId, v.type)] || AUD_PROFILES.Retail
   const dailyAvg = v.footfall / 30
   return { ...p, byDay: p.shape.map(s => Math.round(dailyAvg * 1.7 * s)), footfallReal: false }
 }
@@ -142,10 +164,12 @@ export function audienceFor(v: VenueVM): Audience {
 export const WEEKS_PER_MONTH = 4.345
 
 // Monthly impressions for a venue — the single source of truth so the hover card
-// and the detail panel always agree. Prefers the real measured daily series (sum
-// the week, scale to a month), else the venue's impressionsPerMonth, else footfall.
+// and the detail panel always agree. Precedence: the CPM rate-card's forecast
+// (server-computed, nightly-refreshed) → the real measured daily series (sum the
+// week, scale to a month) → the venue's impressionsPerMonth → footfall.
 // Reactive via audienceFor(): updates when a venue's real audience loads.
 export function monthlyImpressions(v: VenueVM): number {
+  if (v.forecastMonthlyImpressions > 0) return Math.round(v.forecastMonthlyImpressions)
   const a = audienceFor(v)
   return a.footfallReal
     ? Math.round(a.byDay.reduce((s, n) => s + n, 0) * WEEKS_PER_MONTH)
@@ -252,6 +276,10 @@ export function toVM(rec: any): VenueVM | null {
     rate: Number(rec.rate) || 0,
     isRatePerScreen: !!rec.isRatePerScreen,
     impressionsPerMonth: Number(rec.impressionsPerMonth) || 0,
+    openOohTypeId: Number(rec.openOohVenueTypeId) || 0,
+    cpm: Number(rec.cpm) || 0,
+    forecastMonthlyImpressions: Number(rec.forecastMonthlyImpressions) || 0,
+    impressionsSource: rec.impressionsSource ?? '',
     level: rec.level ?? 'Blue',
     description: rec.description ?? '',
     partner: rec.partner,
